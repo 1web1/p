@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استعادة كلمة المرور</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background-color: #212121; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #424242; }
+        .hidden { display: none; }
+        .error { color: #d32f2f; margin-top: 10px; font-weight: bold; }
+        .success { color: #2e7d32; margin-top: 10px; font-weight: bold; }
+        #loadingMessage { color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>تغيير كلمة المرور</h2>
+
+    <!-- رسالة التحقق من الرابط -->
+    <div id="loadingMessage">جاري التحقق من الرابط...</div>
+
+    <!-- فورم إدخال الباسورد الجديد (مخفي حتى يتم التحقق) -->
+    <form id="resetForm" class="hidden">
+        <input type="password" id="newPassword" placeholder="اكتب كلمة المرور الجديدة" required minlength="6">
+        <button type="submit" id="submitBtn">تأكيد وتغيير</button>
+    </form>
+
+    <!-- مساحة لعرض رسائل النجاح أو الفشل -->
+    <div id="messageBox"></div>
+</div>
+
+<script type="module">
+    // 1. استيراد دوال Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, verifyPasswordResetCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // 2. ⚠️ ضع بيانات مشروعك هنا من Firebase Console ⚠️
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        // ... ضع باقي الإعدادات الخاصة بك هنا
+    };
+
+    // تهيئة المشروع
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ربط العناصر من HTML
+    const loadingMessage = document.getElementById('loadingMessage');
+    const resetForm = document.getElementById('resetForm');
+    const messageBox = document.getElementById('messageBox');
+    const newPasswordInput = document.getElementById('newPassword');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // 3. قراءة الرابط (URL) واستخراج المتغيرات
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const actionCode = urlParams.get('oobCode');
+
+    // التأكد من أن الرابط لاستعادة كلمة المرور ويحتوي على الكود
+    if (mode === 'resetPassword' && actionCode) {
+        // 4. التحقق من صلاحية الكود
+        verifyPasswordResetCode(auth, actionCode)
+            .then((email) => {
+                // الكود صالح: إخفاء رسالة التحميل وإظهار فورم الباسورد
+                loadingMessage.classList.add('hidden');
+                resetForm.classList.remove('hidden');
+            })
+            .catch((error) => {
+                // الكود غير صالح أو منتهي: عرض رسالة للمستخدم
+                loadingMessage.classList.add('hidden');
+                messageBox.innerHTML = '<p class="error">الرابط منتهي الصلاحية أو غير صالح. يرجى طلب إعادة تعيين كلمة المرور مرة أخرى.</p>';
+            });
+    } else {
+        // الرابط لا يحتوي على المعلومات الصحيحة
+        loadingMessage.classList.add('hidden');
+        messageBox.innerHTML = '<p class="error">حدث خطأ في قراءة الرابط.</p>';
+    }
+
+    // 5. عند ضغط الطالب على "تأكيد وتغيير"
+    resetForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // منع إعادة تحميل الصفحة
+        const newPassword = newPasswordInput.value;
+        submitBtn.disabled = true; // إيقاف الزر مؤقتًا
+        submitBtn.innerText = "جاري التغيير...";
+
+        // تنفيذ طلب التغيير في Firebase
+        confirmPasswordReset(auth, actionCode, newPassword)
+            .then(() => {
+                // تم التغيير بنجاح
+                resetForm.classList.add('hidden');
+                messageBox.innerHTML = '<p class="success">تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.</p>';
+            })
+            .catch((error) => {
+                // فشل التغيير لأي سبب
+                submitBtn.disabled = false;
+                submitBtn.innerText = "تأكيد وتغيير";
+                messageBox.innerHTML = '<p class="error">حدث خطأ أثناء التغيير. حاول مرة أخرى.</p>';
+            });
+    });
+</script>
+
+</body>
+</html>
