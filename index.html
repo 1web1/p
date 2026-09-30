@@ -1,109 +1,1952 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استعادة كلمة المرور</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 12px; background-color: #212121; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        button:hover { background-color: #424242; }
-        .hidden { display: none; }
-        .error { color: #d32f2f; margin-top: 10px; font-weight: bold; }
-        .success { color: #2e7d32; margin-top: 10px; font-weight: bold; }
-        #loadingMessage { color: #555; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>منصة الدفعة التعليمية | قسم المساحة ونظم المعلومات</title>
+<meta name="description" content="منصة الدفعة التعليمية - قسم المساحة ونظم المعلومات: ملخصات وبنك أسئلة ولوحة شرف">
+<meta name="theme-color" content="#0a0908">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --fg: #ffffff; --fg-soft: rgba(255,255,255,.9); --fg-faint: rgba(255,255,255,.6);
+    --shade: #0a0908; --ease: cubic-bezier(.22,.61,.36,1);
+    --primary: #3b82f6; --primary-hover: #2563eb; --gold: #ffd700; --online-green: #22c55e;
+    --cream: #E1E0CC; --danger: #ef4444; --warning: #f59e0b; --purple: #8b5cf6;
+    --header-h: 60px;
+  }
+
+  /* ---------------- وضع الصباح ---------------- */
+  body.light-mode { --fg: #111827; --fg-soft: #374151; --fg-faint: #6b7280; --shade: #f3f4f6; --cream: #111827; }
+  body.light-mode .liquid-glass { background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.1); box-shadow: 0 8px 32px rgba(0,0,0,.05); color: var(--fg); }
+  body.light-mode .liquid-glass::before { background: linear-gradient(180deg, rgba(0,0,0,.05) 0%, transparent 100%); }
+  body.light-mode .chrome { background: rgba(255,255,255,.85); border-bottom: 1px solid rgba(0,0,0,.1); }
+  body.light-mode .search-box, body.light-mode .input-group input, body.light-mode .input-group textarea, body.light-mode .input-group select { background: rgba(255,255,255,.9); border: 1px solid rgba(0,0,0,.15); color: #111; }
+  body.light-mode .search-box:focus, body.light-mode .input-group input:focus, body.light-mode .input-group textarea:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 10px rgba(59,130,246,.1); }
+  body.light-mode .rank-row:hover { background: rgba(0,0,0,.05); }
+  body.light-mode .rank-row { border-bottom: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .quiz-btn { background: #fff; border: 1px solid rgba(0,0,0,.1); color: var(--fg); }
+  body.light-mode .quiz-btn:hover:not(:disabled) { background: #f9fafb; border-color: rgba(0,0,0,.2); }
+  body.light-mode .admin-header { background: rgba(255,255,255,.7); border-bottom: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .admin-stat-box { background: #fff; border: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .log-item { background: #fff; }
+  body.light-mode .profile-row { background: rgba(255,255,255,.8); border: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .modal-box { background: #fff; }
+  body.light-mode .file-category-header { background: #fff; border: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .admin-tabs { background: rgba(255,255,255,.8); border-bottom: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .admin-tab:hover { background: rgba(0,0,0,.03); }
+  body.light-mode .admin-section-header { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.03); border: 1px solid rgba(0,0,0,.05); }
+  body.light-mode .hero-desc { color: #374151; }
+  body.light-mode .hero-title { color: #111827; }
+  body.light-mode .gradient-overlay { background: linear-gradient(to bottom, rgba(243,244,246,.3) 0%, transparent 40%, rgba(243,244,246,.8) 80%, rgba(243,244,246,1) 100%); }
+  body.light-mode .admin-btn, body.light-mode .theme-btn { background: rgba(0,0,0,.05); border: 1px solid rgba(0,0,0,.1); color: var(--fg); }
+  body.light-mode .theme-btn:hover, body.light-mode .admin-btn:hover { background: rgba(0,0,0,.1); }
+  body.light-mode .user-greeting-btn { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); }
+  body.light-mode div:where(.swal2-container) div:where(.swal2-popup) { background: #fff !important; color: #111827 !important; border: 1px solid rgba(0,0,0,.1); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
+  body.light-mode div:where(.swal2-container) input:where(.swal2-input), body.light-mode div:where(.swal2-container) textarea:where(.swal2-textarea) { color: #111827; background: #f9fafb; border: 1px solid rgba(0,0,0,.2); }
+  body.light-mode div:where(.swal2-container) button:where(.swal2-styled.swal2-cancel) { background-color: #e5e7eb !important; color: #111 !important; }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 10px); }
+  body { margin: 0; background: var(--shade); color: var(--fg); font-family: 'Cairo', sans-serif; overflow-x: hidden; transition: background .3s var(--ease), color .3s var(--ease); }
+  img { max-width: 100%; }
+
+  /* ===== الأساس (الزجاج) ===== */
+  .liquid-glass { position: relative; background: rgba(255,255,255,.06); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.12); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,.35); overflow: hidden; }
+  .liquid-glass::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,.08), transparent 40%); z-index: 1; }
+
+  /* ===== الهيدر (منظم في صف واحد) ===== */
+  .chrome { position: sticky; top: 0; z-index: 50; height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 clamp(12px, 4vw, 44px); border-radius: 0 !important; border-top: none; border-left: none; border-right: none; background: rgba(10,9,8,.8); overflow: visible; }
+  .mark { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 17px; cursor: pointer; white-space: nowrap; min-width: 0; }
+  .mark-star { color: var(--gold); }
+  .nav { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .nav .pill { height: 36px; padding: 0 12px; }
+  .theme-btn { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font-size: 18px; width: 36px; padding: 0 !important; display: flex; align-items: center; justify-content: center; }
+  .user-greeting-btn { display: flex; align-items: center; height: 36px; max-width: 140px; padding: 0 12px; border-radius: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); font-size: 13px; font-weight: 700; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-greeting-btn:empty { display: none; }
+
+  /* القسم الترحيبي */
+  .cinematic-hero { position: relative; height: 100vh; height: 100svh; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 6vh 5vw; overflow: hidden; background: #000; }
+  .cinematic-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+  .noise-overlay { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); opacity: .6; mix-blend-mode: overlay; pointer-events: none; z-index: 2; }
+  .gradient-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,9,8,.3) 0%, transparent 40%, rgba(10,9,8,.8) 80%, rgba(10,9,8,1) 100%); pointer-events: none; z-index: 3; transition: background .3s; }
+  .hero-content { position: relative; z-index: 4; max-width: 1200px; width: 100%; margin: 0 auto; }
+  @keyframes fadeUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+  .hero-label { color: var(--primary); font-size: clamp(12px, 2vw, 16px); font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; opacity: 0; animation: fadeUp .8s forwards .2s; }
+  .hero-title { font-size: clamp(38px, 8vw, 90px); margin: 0 0 16px; line-height: 1.1; font-weight: 900; color: var(--cream); letter-spacing: -1px; opacity: 0; animation: fadeUp .8s forwards .4s; transition: color .3s; }
+  .hero-desc { font-size: clamp(14px, 2vw, 18px); color: rgba(225,224,204,.8); max-width: 600px; line-height: 1.6; margin: 0 0 30px; opacity: 0; animation: fadeUp .8s forwards .6s; transition: color .3s; }
+  .scroll-down-btn { display: inline-flex; align-items: center; gap: 12px; color: var(--primary); font-size: 15px; font-weight: 700; cursor: pointer; opacity: 0; animation: fadeUp .8s forwards .8s; transition: .3s; }
+  .scroll-down-btn:hover { color: var(--primary-hover); gap: 18px; }
+  .arrow-down { background: rgba(255,255,255,.1); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.2); animation: bounce 2s infinite 1.5s; }
+  @keyframes bounce { 0%,20%,50%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-8px); } 60% { transform: translateY(-4px); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } .hero-label, .hero-title, .hero-desc, .scroll-down-btn { opacity: 1; } }
+
+  .pill { display: inline-flex; align-items: center; justify-content: center; height: 36px; min-height: 36px; padding: 0 16px; border-radius: 8px; background: var(--primary); color: #fff; font-size: 13px; font-weight: 700; text-decoration: none; border: none; cursor: pointer; transition: .2s; white-space: nowrap; gap: 6px; font-family: inherit; }
+  .pill:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .pill:active { transform: scale(.97); }
+  .admin-btn { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); }
+  .logout-btn { background: var(--danger); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 14px; display: flex; flex-direction: column; gap: 24px; position: relative; z-index: 10; }
+  .search-box { width: 100%; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); border-radius: 12px; padding: 14px 16px; color: var(--fg); font-family: inherit; font-size: 16px; outline: none; margin-bottom: 20px; transition: .3s; }
+
+  .level-tabs { display: flex; gap: 10px; padding: 6px; border-radius: 12px; margin-bottom: 20px; }
+  .level-tab-btn { flex: 1; min-height: 36px; padding: 12px 16px; border-radius: 8px; border: none; background: transparent; color: var(--fg-soft); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s var(--ease); }
+  .level-tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(59,130,246,.4); }
+
+  .section-title { font-size: 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 4px rgba(0,0,0,.05); }
+  .section-title::before { content: ""; width: 6px; height: 22px; background: var(--primary); border-radius: 3px; flex-shrink: 0; }
+  .grid { display: grid; gap: 16px; }
+  .home-layout { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 850px) { .container { padding: 60px 20px; gap: 36px; } .home-layout { grid-template-columns: 2fr 1fr; } .section-title { font-size: 24px; } }
+
+  .card { padding: 22px; display: flex; flex-direction: column; }
+  .leaderboard-card { border: 1.5px solid var(--gold) !important; background: rgba(255,215,0,.05) !important; }
+  .rank-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,.05); position: relative; z-index: 2; transition: .2s; border-radius: 8px; }
+  .rank-row:hover { background: rgba(255,255,255,.05); }
+  .rank-row:last-child { border-bottom: none; }
+  .rank-num { font-weight: 900; font-size: 16px; color: var(--gold); width: 28px; }
+  .rank-name { flex-grow: 1; font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px; }
+  .rank-score { background: var(--primary); padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; white-space: nowrap; color: #fff; }
+
+  .quiz-options { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  @media (min-width: 600px) { .quiz-options { grid-template-columns: 1fr 1fr; } }
+  .quiz-btn { background: rgba(255,255,255,.05); width: 100%; min-height: 48px; padding: 10px 16px; text-align: right; font-size: 14px; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); color: var(--fg); cursor: pointer; font-family: inherit; transition: all .2s; }
+  .quiz-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.3); transform: translateY(-1px); }
+  .quiz-btn:disabled { cursor: not-allowed; color: #fff; }
+  .quiz-solved-badge { padding: 6px 12px; border-radius: 12px; font-size: 12px; margin-right: auto; font-weight: bold; }
+
+  .upload-form { display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 2; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label { font-size: 13px; color: var(--fg-soft); font-weight: bold; }
+  .input-group input, .input-group textarea, .input-group select { background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; padding: 12px; color: var(--fg); font-family: inherit; font-size: 16px; width: 100%; transition: .3s; }
+  select.input-group, input.input-group, textarea.input-group { background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; padding: 12px; color: var(--fg); font-family: inherit; font-size: 16px; width: 100%; }
+  body.light-mode select.input-group, body.light-mode input.input-group, body.light-mode textarea.input-group { background: rgba(255,255,255,.9); border-color: rgba(0,0,0,.15); color: #111; }
+
+  .overlay-bg { position: fixed; inset: 0; background: rgba(0,0,0,.85); backdrop-filter: blur(10px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+  .modal-box { width: 100%; max-width: 450px; border-radius: 18px; padding: 26px 20px; max-height: 92vh; overflow-y: auto; }
+  .modal-box.large { max-width: 600px; }
+
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 12px; position: relative; z-index: 2; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); }
+  .styled-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: right; min-width: 800px; }
+  .styled-table th, .styled-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: middle; }
+  .styled-table th { background: rgba(59,130,246,.1); color: var(--primary); font-weight: bold; letter-spacing: .5px; }
+  .styled-table tbody tr { transition: .2s; }
+  .styled-table tbody tr:hover { background: rgba(255,255,255,.02); }
+
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+  .status-online { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+  .status-offline { background: rgba(255,255,255,.05); color: var(--fg-faint); border: 1px solid rgba(255,255,255,.1); }
+  .status-banned { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+
+  .action-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-sm { padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; transition: .2s; border: none; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; }
+  .btn-track { background: rgba(59,130,246,.15); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+  .btn-edit { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+  .btn-msg { background: rgba(168,85,247,.15); color: #c084fc; border: 1px solid rgba(168,85,247,.3); }
+  .btn-ban { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+  .btn-unban { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+  .btn-sm:hover { filter: brightness(1.3); transform: translateY(-1px); }
+
+  .empty-state { text-align: center; padding: 30px 15px; color: var(--fg-faint); font-size: 14px; position: relative; z-index: 2; background: rgba(0,0,0,.2); border-radius: 10px; }
+  .profile-row { background: rgba(0,0,0,.4); padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.05); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .profile-row-label { color: var(--fg-soft); font-size: 13px; }
+  .profile-row-value { font-size: 15px; font-weight: 700; color: var(--fg); word-break: break-all; }
+  .file-category-header { background: rgba(0,0,0,.3); padding: 10px 14px; border-radius: 8px; font-size: 14px; color: var(--gold); margin: 20px 0 10px; font-weight: bold; display: flex; align-items: center; gap: 8px; border-right: 3px solid var(--gold); }
+  .z-content { position: relative; z-index: 2; }
+  .research-nav-btn { background: #14b8a6; }
+  .research-nav-btn:hover { background: #0d9488; }
+  .research-entry { transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .research-entry:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(20,184,166,.25); }
+  #research-tabs .level-tab-btn.active { background: #14b8a6; box-shadow: 0 4px 15px rgba(20,184,166,.4); }
+
+  .subject-image-container { margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+  .subject-image-container img { width: 100%; height: auto; display: block; }
+  .subject-image-title { background: rgba(0,0,0,.8); padding: 8px 12px; font-size: 14px; color: var(--gold); text-align: center; font-weight: bold; }
+
+  /* لوحة الإدارة */
+  #admin-panel { display: none; margin-top: 30px; padding: 0; background: transparent; box-shadow: none; border: none; }
+  .admin-dashboard-container { background: rgba(20,20,20,.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 16px; border: 1px solid rgba(255,255,255,.1); overflow: hidden; position: relative; z-index: 2; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  .admin-header { background: rgba(0,0,0,.5); padding: 24px; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; margin-top: 20px; }
+  .admin-stat-box { background: rgba(255,255,255,.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); text-align: center; transition: .3s; }
+  .admin-stat-box:hover { background: rgba(255,255,255,.05); transform: translateY(-2px); }
+  .admin-stat-num { font-size: 32px; font-weight: 900; color: var(--primary); margin-bottom: 6px; line-height: 1; }
+  .admin-stat-label { font-size: 13px; color: var(--fg-soft); font-weight: 600; }
+  .admin-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.05); background: rgba(0,0,0,.3); overflow-x: auto; scrollbar-width: none; }
+  .admin-tabs::-webkit-scrollbar { display: none; }
+  .admin-tab { padding: 16px 24px; font-size: 15px; font-weight: bold; color: var(--fg-faint); cursor: pointer; border-bottom: 3px solid transparent; transition: .2s; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .admin-tab:hover { color: var(--fg); background: rgba(255,255,255,.02); }
+  .admin-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(59,130,246,.05); }
+  .admin-tab-content { padding: 24px; display: none; }
+  .admin-tab-content.active { display: block; }
+  .admin-section-header { background: rgba(255,255,255,.03); padding: 12px 16px; border-radius: 8px; font-size: 16px; color: var(--gold); font-weight: bold; display: flex; align-items: center; gap: 10px; margin: 30px 0 16px; border-right: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,.1); }
+  .log-item { background: rgba(0,0,0,.3); padding: 16px; border-radius: 10px; margin-bottom: 12px; border-right: 4px solid var(--primary); display: flex; flex-direction: column; gap: 6px; transition: .2s; }
+  .log-item:hover { background: rgba(0,0,0,.5); }
+  .log-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .log-admin { font-weight: bold; color: var(--gold); font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .log-time { font-size: 12px; color: var(--fg-faint); }
+  .log-body { font-size: 14px; line-height: 1.6; color: var(--fg-soft); word-break: break-word; }
+  .log-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,.05); font-size: 11px; margin-right: 8px; font-weight: bold; letter-spacing: .5px; }
+
+  /* تتبع الطالب */
+  .track-avatar { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #fff; background: rgba(59,130,246,.15); margin: 0 auto; box-shadow: 0 0 15px rgba(59,130,246,.3); }
+  .track-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .track-stat-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); border-radius: 12px; padding: 16px 8px; text-align: center; }
+  .track-stat-title { font-size: 12px; color: var(--fg-soft); margin-bottom: 10px; font-weight: 700; }
+  .track-stat-value { font-size: 18px; font-weight: 900; }
+  .track-subj-card { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05); border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: .2s; }
+  .track-subj-card:hover { background: rgba(255,255,255,.04); }
+  .track-progress-bar { height: 8px; background: rgba(0,0,0,.5); border-radius: 4px; overflow: hidden; width: 100%; margin: 10px 0; border: 1px solid rgba(255,255,255,.05); }
+  .track-progress-fill { height: 100%; border-radius: 4px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+  /* SweetAlert2 */
+  div:where(.swal2-container) div:where(.swal2-popup) { background: #18181b !important; color: #fff !important; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; font-family: 'Cairo', sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5); max-width: 100%; }
+  div:where(.swal2-container) button:where(.swal2-styled.swal2-confirm) { background-color: var(--primary) !important; border-radius: 8px; font-weight: bold; }
+  div:where(.swal2-container) button:where(.swal2-styled.swal2-cancel) { background-color: rgba(255,255,255,.1) !important; color: #fff !important; border-radius: 8px; }
+  div:where(.swal2-container) input:where(.swal2-input), div:where(.swal2-container) textarea:where(.swal2-textarea) { color: #fff; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: 16px; max-width: 100%; }
+  div:where(.swal2-container) input:where(.swal2-input):focus, div:where(.swal2-container) textarea:where(.swal2-textarea):focus { border-color: var(--primary); box-shadow: none; }
+
+  #maintenance-overlay { display: none; position: fixed; inset: 0; background: rgba(5,5,5,.98); backdrop-filter: blur(20px); z-index: 9999999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .mb-4 { margin-bottom: 16px; }
+
+  /* التنبيه العاجل: ملتصق تحت الهيدر مباشرة */
+  #alert-banner { display: none; background: linear-gradient(135deg, var(--warning), #d97706); color: #111; padding: 10px 16px; text-align: center; font-weight: 700; font-size: 14px; animation: pulseAlert 2s infinite; position: sticky; top: var(--header-h); z-index: 49; word-break: break-word; }
+  @keyframes pulseAlert { 0% { opacity: .9; } 50% { opacity: 1; } 100% { opacity: .9; } }
+
+  /* ===== الهواتف ===== */
+  @media (max-width: 600px) {
+    :root { --header-h: 56px; }
+    .mark { font-size: 14px; }
+    .nav { gap: 6px; }
+    .nav .pill { padding: 0 10px; }
+    .btn-txt { display: none; }
+    .admin-btn, .logout-btn { width: 36px; padding: 0 !important; }
+    .user-greeting-btn { max-width: 90px; padding: 0 8px; font-size: 12px; }
+    .cinematic-hero { padding: 5vh 20px; }
+    .container { padding: 24px 12px; }
+    .level-tabs { gap: 6px; }
+    .level-tab-btn { padding: 10px 6px; font-size: 13px; }
+    .card { padding: 16px; }
+    .modal-box { padding: 20px 14px; }
+    .admin-header, .admin-tab-content { padding: 14px; }
+    .admin-tab { padding: 12px 14px; font-size: 13px; }
+    .admin-stat-num { font-size: 24px; }
+    .admin-stat-box { padding: 14px 8px; }
+    .track-stats-grid { grid-template-columns: 1fr; }
+    #subject-files .card, .flex-between { flex-wrap: wrap; }
+    .grid[style*="minmax(320px"], .grid[style*="minmax(300px"] { grid-template-columns: 1fr !important; }
+    #btn-reset-subject-quizzes { height: auto !important; padding: 6px 10px; }
+    .profile-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .section-title { font-size: 18px; }
+  }
+  @media (max-width: 360px) { .mark-text { display: none; } }
+
+  /* ===== تحسينات الموبايل ===== */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  img, video, iframe, canvas { max-width: 100%; }
+  button, a, .pill, .btn-sm, .level-tab-btn, .admin-tab { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .card, .styled-table td { overflow-wrap: anywhere; }
+  @supports (padding: env(safe-area-inset-top)) {
+    .chrome { padding-top: env(safe-area-inset-top); height: calc(var(--header-h) + env(safe-area-inset-top)); }
+    .container { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width: 600px) {
+    /* منع تكبير الشاشة تلقائي في iPhone عند الضغط على أي خانة */
+    input, select, textarea, .swal2-input, .swal2-textarea { font-size: 16px !important; }
+    .pill, .btn-sm { min-height: 40px; }
+    .research-nav-btn { width: 36px; padding: 0 !important; }
+    #research-tabs { flex-direction: column; }
+    #research-tabs .level-tab-btn { width: 100%; white-space: normal; line-height: 1.5; padding: 12px 10px; font-size: 14px; }
+    #research-grid { grid-template-columns: 1fr !important; }
+    .research-entry .pill { width: 100%; }
+    .styled-table { min-width: 640px; font-size: 12px; }
+    .styled-table th, .styled-table td { padding: 10px 8px; }
+    .swal2-popup { width: 92% !important; max-width: 420px; padding: 18px 14px !important; }
+    .swal2-title { font-size: 20px !important; }
+    .swal2-html-container { font-size: 14px !important; margin: 8px 6px !important; }
+    .swal2-actions { flex-wrap: wrap; gap: 8px; }
+    .swal2-styled { min-height: 42px; }
+  }
+  #auth-overlay { z-index: 10000000; }
+  div:where(.swal2-container) { z-index: 20000000 !important; }
+  @media (prefers-reduced-motion: reduce) { .cinematic-video { display: none; } }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h2>تغيير كلمة المرور</h2>
+  <div id="fb-error" style="display:none; position:fixed; inset:0; z-index:99999999; background:#0a0908; color:#fff; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; font-family:'Cairo',sans-serif;">
+    <div style="font-size:52px; margin-bottom:12px;">📡</div>
+    <h2 style="margin:0 0 10px; color:#3b82f6;">تعذّر الاتصال بخدمة البيانات</h2>
+    <p style="max-width:460px; line-height:1.7; color:rgba(255,255,255,.8); margin:0 0 18px;">لم يتم تحميل مكتبة Firebase. تأكد من الإنترنت، أو أن الصفحة ليست مفتوحة داخل بيئة تحجب الاتصال بـ gstatic / cdnjs، ثم أعد المحاولة.</p>
+    <button onclick="location.reload()" style="background:#3b82f6; color:#fff; border:none; border-radius:8px; padding:12px 24px; font-family:inherit; font-weight:700; font-size:15px; cursor:pointer;">إعادة المحاولة 🔄</button>
+  </div>
 
-    <!-- رسالة التحقق من الرابط -->
-    <div id="loadingMessage">جاري التحقق من الرابط...</div>
+  <div id="maintenance-overlay">
+    <div style="font-size: 60px; margin-bottom: 20px; animation: bounce 2s infinite;">🛠️</div>
+    <h1 style="color: var(--primary); font-size: clamp(28px, 5vw, 48px); margin: 0 0 16px;">الموقع تحت الصيانة والتحديث</h1>
+    <p style="color: var(--fg-soft); font-size: clamp(15px, 2vw, 20px); max-width: 600px; line-height: 1.6;">
+      نعمل حالياً على تطوير المنصة وإضافة ملخصات وأسئلة جديدة لتوفير تجربة أفضل. يرجى العودة لاحقاً!
+    </p>
+    <button id="maint-admin-btn" onclick="document.getElementById('auth-overlay').style.display='flex'" style="margin-top:24px;background:transparent;border:1px solid var(--primary);color:var(--primary);border-radius:8px;padding:10px 20px;font-family:inherit;cursor:pointer;">دخول الإدارة 🔐</button>
+  </div>
 
-    <!-- فورم إدخال الباسورد الجديد (مخفي حتى يتم التحقق) -->
-    <form id="resetForm" class="hidden">
-        <input type="password" id="newPassword" placeholder="اكتب كلمة المرور الجديدة" required minlength="6">
-        <button type="submit" id="submitBtn">تأكيد وتغيير</button>
-    </form>
+  <section class="cinematic-hero">
+    <video class="cinematic-video" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4" autoplay loop muted playsinline></video>
+    <div class="noise-overlay"></div>
+    <div class="gradient-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-label">قسم المساحة ونظم المعلومات</div>
+      <h1 class="hero-title">منصة الدفعة<br>التعليمية</h1>
+      <p class="hero-desc">منصتكم الموحدة للملخصات، بنك الأسئلة، ولوحة شرف المتفوقين لكل المستويات.</p>
+      <div class="scroll-down-btn" onclick="document.getElementById('main-site').scrollIntoView({behavior: 'smooth'})">
+        <span>استكشف المنصة</span>
+        <div class="arrow-down">↓</div>
+      </div>
+    </div>
+  </section>
 
-    <!-- مساحة لعرض رسائل النجاح أو الفشل -->
-    <div id="messageBox"></div>
-</div>
+  <div id="main-site">
+    <header class="chrome liquid-glass">
+      <div class="mark z-content" onclick="showHome()"><span class="mark-star">✦</span><span class="mark-text">منصة الدفعة</span></div>
+      <nav class="nav z-content">
+        <button class="pill theme-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع">🌞</button>
+        <div class="user-greeting-btn" onclick="showProfile()" id="user-greeting" title="الملف الشخصي"></div>
+        <button class="pill research-nav-btn" id="research-nav-btn" onclick="showResearch()" title="قسم الأبحاث"><span>🔬</span><span class="btn-txt">الأبحاث</span></button>
+        <button class="pill admin-btn" id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none;"><span>⚙️</span><span class="btn-txt">الإدارة</span></button>
+        <button class="pill logout-btn" onclick="logoutStudent()"><span>🚪</span><span class="btn-txt">خروج</span></button>
+      </nav>
+    </header>
 
-<script type="module">
-    // 1. استيراد دوال Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, verifyPasswordResetCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <div id="alert-banner">⚠️ <span id="alert-text-content"></span></div>
 
-    // 2. ⚠️ ضع بيانات مشروعك هنا من Firebase Console ⚠️
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        // ... ضع باقي الإعدادات الخاصة بك هنا
-    };
+    <main class="container">
 
-    // تهيئة المشروع
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+      <!-- الرئيسية -->
+      <div id="view-home">
+        <div class="home-layout">
+          <div>
+            <input type="text" id="search-box" class="search-box z-content" placeholder="🔍 ابحث عن مادة..." oninput="filterSubjects()">
+            <div class="level-tabs liquid-glass">
+              <button class="level-tab-btn z-content active" id="tab-lvl-1" onclick="switchLevel(1)">المستوى الأول 🎓</button>
+              <button class="level-tab-btn z-content" id="tab-lvl-2" onclick="switchLevel(2)">المستوى الثاني 🚀</button>
+            </div>
+            <h2 class="section-title z-content" id="current-level-heading">مواد المستوى الأول</h2>
+            <div class="grid" id="subjects-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));"></div>
 
-    // ربط العناصر من HTML
-    const loadingMessage = document.getElementById('loadingMessage');
-    const resetForm = document.getElementById('resetForm');
-    const messageBox = document.getElementById('messageBox');
-    const newPasswordInput = document.getElementById('newPassword');
-    const submitBtn = document.getElementById('submitBtn');
+            <div class="card liquid-glass" id="feedback-box" style="margin-top: 24px;">
+              <h3 class="z-content" style="color: #25D366; margin: 0 0 12px; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                <span>💬</span> صندوق الملاحظات
+              </h3>
+              <form onsubmit="sendFeedbackToWhatsApp(event)" class="upload-form z-content">
+                <div class="input-group">
+                  <textarea id="feedback-message" rows="3" placeholder="عندك استفسار؟ اكتبه هنا وسنرد عليك عبر الواتساب..." required style="resize: vertical;"></textarea>
+                </div>
+                <button class="pill" type="submit" style="background: #25D366; color: #111; width: fit-content;">إرسال ↗</button>
+              </form>
+            </div>
 
-    // 3. قراءة الرابط (URL) واستخراج المتغيرات
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode');
-    const actionCode = urlParams.get('oobCode');
+            <div class="card liquid-glass" style="margin-top: 24px; border-color: var(--primary);">
+              <h3 class="z-content" style="color: var(--primary); margin: 0 0 16px; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                <span>🔗</span> روابط جروبات الدفعة والمواد
+              </h3>
+              <div class="z-content" style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="https://chat.whatsapp.com/CxHsQ5woXkxJLi4grJXHac?s=sw&p=a&mlu=4&ilr=4" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none;">
+                  <span>جروب مادة جيومورفولوجيا</span>
+                  <span style="color: var(--online-green);">🟢 انضمام</span>
+                </a>
+                <a href="https://chat.whatsapp.com/LluDZ5Ymajo6fXCQ46MNDy?s=cl&p=i&mlu=4&ilr=4" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none;">
+                  <span>جروب مادة التنمية البشرية</span>
+                  <span style="color: var(--online-green);">🟢 انضمام</span>
+                </a>
+                <a href="https://chat.whatsapp.com/E7eaZkd5ubN4F3jp3X4lcS?s=cl&p=i&mlu=4&ilr=4" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none;">
+                  <span>جروب مادة اوراسيا</span>
+                  <span style="color: var(--online-green);">🟢 انضمام</span>
+                </a>
+                <a href="https://chat.whatsapp.com/DyNRIR2xCTUIX1E29iuhIT?s=cl&p=i&mlu=4&ilr=4" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none;">
+                  <span>جروب مادة افريقيا وحوض النيل</span>
+                  <span style="color: var(--online-green);">🟢 انضمام</span>
+                </a>
+                <a href="https://chat.whatsapp.com/BEXUTeVSrvK5UMpcWCPDlR?s=cl&p=a&mlu=4&ilr=4" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none;">
+                  <span>جروب مادة تصميم واخراج الخرائط</span>
+                  <span style="color: var(--online-green);">🟢 انضمام</span>
+                </a>
+                <a href="https://chat.whatsapp.com/B5nR9QBBR9nH9HPkSTrMUG?s=cl&p=i&mlu=4&ilr=4" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none;">
+                  <span>جروب مادة GIS1</span>
+                  <span style="color: var(--online-green);">🟢 انضمام</span>
+                </a>
+                <a href="#" target="_blank" rel="noopener" class="quiz-btn" style="text-align: right; display: flex; justify-content: space-between; align-items: center; text-decoration: none; border-color: #5865F2;">
+                  <span>سيرفر الديسكورد للمذاكرة الجماعية</span>
+                  <span style="color: #5865F2;">🟣 انضمام</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h2 class="section-title z-content" style="color: var(--gold);">🏆 لوحة الشرف</h2>
+            <div class="card liquid-glass leaderboard-card" id="leaderboard-container">
+              <div class="empty-state">جاري تحميل البيانات...</div>
+            </div>
+          </div>
+        </div>
 
-    // التأكد من أن الرابط لاستعادة كلمة المرور ويحتوي على الكود
-    if (mode === 'resetPassword' && actionCode) {
-        // 4. التحقق من صلاحية الكود
-        verifyPasswordResetCode(auth, actionCode)
-            .then((email) => {
-                // الكود صالح: إخفاء رسالة التحميل وإظهار فورم الباسورد
-                loadingMessage.classList.add('hidden');
-                resetForm.classList.remove('hidden');
-            })
-            .catch((error) => {
-                // الكود غير صالح أو منتهي: عرض رسالة للمستخدم
-                loadingMessage.classList.add('hidden');
-                messageBox.innerHTML = '<p class="error">الرابط منتهي الصلاحية أو غير صالح. يرجى طلب إعادة تعيين كلمة المرور مرة أخرى.</p>';
-            });
-    } else {
-        // الرابط لا يحتوي على المعلومات الصحيحة
-        loadingMessage.classList.add('hidden');
-        messageBox.innerHTML = '<p class="error">حدث خطأ في قراءة الرابط.</p>';
+        <div class="card liquid-glass research-entry" style="margin-top: 24px; border-color: #14b8a6; cursor:pointer;" onclick="showResearch()">
+          <div class="z-content flex-between" style="gap:12px; flex-wrap:wrap;">
+            <div>
+              <h3 style="color:#14b8a6; margin:0 0 6px; font-size:18px; display:flex; align-items:center; gap:8px;"><span>🔬</span> قسم الأبحاث</h3>
+              <p style="margin:0; font-size:13px; color:var(--fg-soft);">اختار بحث جاهز من القائمة أو اطلب بحث مش موجود.</p>
+            </div>
+            <button class="pill" style="background:#14b8a6;" onclick="event.stopPropagation(); showResearch()">دخول القسم ⭠</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- قسم الأبحاث -->
+      <div id="view-research" style="display: none;">
+        <button class="pill z-content mb-4" style="background:rgba(255,255,255,.1);" onclick="showHome()">⭠ رجوع للرئيسية</button>
+        <div class="z-content flex-between" style="margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <h2 class="section-title" style="color:#14b8a6; margin:0;">🔬 قسم الأبحاث</h2>
+          <div id="my-research-status" style="font-size: 13px;"></div>
+        </div>
+
+        <div class="level-tabs liquid-glass" id="research-tabs">
+          <button class="level-tab-btn z-content active" id="tab-res-pick" onclick="switchResearchTab('pick')">📚 اختار بحث جاهز</button>
+          <button class="level-tab-btn z-content" id="tab-res-new" onclick="switchResearchTab('new')">✍️ انشئ بحث مش موجود في القائمة</button>
+        </div>
+
+        <div class="card liquid-glass" style="border-color:#14b8a6;">
+          <!-- اختيار بحث جاهز -->
+          <div id="research-pane-pick">
+            <p class="z-content" style="font-size:13px; color:var(--fg-soft); margin:0 0 14px;">اختار بحث من القائمة واحجزه باسمك. البحث المحجوز مش بيظهر لغيرك.</p>
+            <input type="text" id="research-search" class="search-box z-content" style="margin-bottom: 16px;" placeholder="🔍 دوّر على بحث..." oninput="filterResearch()">
+            <div class="grid z-content" id="research-grid" style="grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));"></div>
+          </div>
+
+          <!-- إنشاء بحث جديد -->
+          <div id="research-pane-new" style="display:none;">
+            <p class="z-content" style="font-size:13px; color:var(--fg-soft); margin:0 0 14px;">البحث اللي عايزه مش موجود في القائمة؟ اكتب عنوانه وابعته للإدارة.</p>
+            <div id="research-new-blocked" class="z-content" style="display:none; font-size:13px; color:#fbbf24;">إنت حاجز بحث بالفعل. الغي الحجز الأول لو عايز تطلب بحث تاني.</div>
+            <div class="z-content" id="research-request-box">
+              <div id="research-request-status" style="font-size:13px; margin-bottom:10px;"></div>
+              <button class="pill" id="research-request-btn" style="background:#8b5cf6;" onclick="requestNewResearch()">✍️ اطلب بحث جديد</button>
+              <p style="font-size:12px; color:var(--fg-faint); margin:8px 0 0;">الطلب بيوصل للإدارة، ولو وافقت بيتحجزلك البحث تلقائي.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- صفحة المادة -->
+      <div id="view-subject" style="display: none;">
+        <button class="pill z-content mb-4" style="background:rgba(255,255,255,.1);" onclick="showHome()">⭠ رجوع للرئيسية</button>
+        <h2 class="section-title z-content" id="subject-title">اسم المادة</h2>
+        <p id="subject-desc" class="z-content" style="color: var(--fg-soft); margin-bottom: 24px; font-size: 14px; line-height: 1.6;"></p>
+        <div id="subject-images" class="z-content" style="margin-bottom: 24px;"></div>
+
+        <h3 class="z-content" style="color: var(--primary); border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 8px; font-size: 17px;">الملفات والمصادر</h3>
+        <div id="subject-files" style="margin-bottom: 32px;"></div>
+
+        <div class="z-content flex-between" style="border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 8px; margin-bottom: 16px;">
+           <h3 style="color: var(--primary); font-size: 17px; margin: 0;">بنك الأسئلة (MCQ)</h3>
+           <button id="btn-reset-subject-quizzes" class="pill" style="background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); font-size: 12px; height: 30px;" onclick="resetSubjectQuizzes()">🔄 إعادة امتحان المادة بالكامل</button>
+        </div>
+        <div class="grid" id="subject-quizzes"></div>
+      </div>
+
+      <!-- لوحة الإدارة -->
+      <section id="admin-panel" class="z-content">
+        <div class="admin-dashboard-container">
+          <div class="admin-header">
+            <h2 style="color: var(--primary); margin: 0; font-size: 24px; display:flex; align-items:center; gap:8px;"><span>👑</span> لوحة تحكم الإدارة</h2>
+            <div class="admin-stats-grid">
+              <div class="admin-stat-box"><div class="admin-stat-num" id="stat-students">0</div><div class="admin-stat-label">إجمالي الطلاب</div></div>
+              <div class="admin-stat-box"><div class="admin-stat-num" style="color:#4ade80;" id="stat-online">0</div><div class="admin-stat-label">متصل الآن</div></div>
+              <div class="admin-stat-box"><div class="admin-stat-num" style="color:#fbbf24;" id="stat-subjects">0</div><div class="admin-stat-label">المواد الدراسية</div></div>
+              <div class="admin-stat-box"><div class="admin-stat-num" style="color:#c084fc;" id="stat-questions">0</div><div class="admin-stat-label">بنك الأسئلة</div></div>
+            </div>
+          </div>
+
+          <div class="admin-tabs">
+            <div class="admin-tab active" onclick="switchAdminTab('students', this)">👥 إدارة الطلاب</div>
+            <div class="admin-tab" onclick="switchAdminTab('content', this)">📚 إدارة المحتوى</div>
+            <div class="admin-tab" onclick="switchAdminTab('tools', this)">⚙️ أدوات النظام</div>
+            <div class="admin-tab" onclick="switchAdminTab('logs', this)">⏱️ سجل النشاط</div>
+          </div>
+
+          <div id="tab-students" class="admin-tab-content active">
+             <div class="flex-between mb-4">
+                <h3 style="color: var(--gold); margin: 0; font-size: 16px;">قاعدة بيانات الطلاب</h3>
+                <button class="pill" style="background: #10b981; font-size: 12px;" onclick="exportStudentsCSV()">📥 تصدير Excel</button>
+             </div>
+             <div style="margin-bottom: 12px;">
+                 <input type="text" id="admin-search-student" class="search-box" style="margin-bottom:0; background: rgba(0,0,0,.4);" placeholder="🔍 ابحث عن طالب بالاسم، الهاتف، أو الـ ID..." oninput="filterAdminStudents()">
+             </div>
+             <div class="table-responsive">
+                <table class="styled-table">
+                   <thead><tr><th>#</th><th>اسم الطالب</th><th>بيانات الاتصال / ID</th><th>النقاط</th><th>الإجراءات</th></tr></thead>
+                   <tbody id="students-table-body"><tr><td colspan="5" style="text-align:center;">جاري جلب البيانات...</td></tr></tbody>
+                </table>
+             </div>
+          </div>
+
+          <div id="tab-content" class="admin-tab-content">
+             <div class="admin-section-header"><span>1️⃣</span> إدارة المواد الدراسية</div>
+             <div class="card liquid-glass" style="background:rgba(0,0,0,.4); margin-bottom: 24px;">
+                <h3 style="color: #fbbf24; font-size: 16px; margin-top:0;">إضافة مادة جديدة</h3>
+                <form class="upload-form" onsubmit="addSubject(event)">
+                   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                      <select class="input-group" id="new-subj-level" required><option value="1">المستوى الأول</option><option value="2">المستوى الثاني</option></select>
+                      <input class="input-group" id="new-subj-name" placeholder="اسم المادة" required>
+                      <input class="input-group" id="new-subj-desc" placeholder="وصف قصير للمادة" required style="grid-column: 1/-1;">
+                   </div>
+                   <button class="pill" type="submit" style="background: #f59e0b; width: fit-content;">إضافة المادة</button>
+                </form>
+             </div>
+
+             <div class="admin-section-header"><span>2️⃣</span> إدارة الملفات والوسائط</div>
+             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 24px;">
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="font-size: 16px; margin-top:0;">رفع ملف (ملخص/محاضرة)</h3>
+                   <form class="upload-form" onsubmit="addFile(event)">
+                      <select class="input-group" id="file-subj-select" required></select>
+                      <select class="input-group" id="file-category" required><option value="محاضرات">محاضرات نظري</option><option value="سكاشن">سكاشن وتطبيقات</option><option value="امتحانات">امتحانات سابقة</option></select>
+                      <input class="input-group" id="file-title" placeholder="عنوان الملف" required>
+                      <input class="input-group" id="file-link" type="url" placeholder="رابط الملف (درايف/ميديافاير)" required>
+                      <button class="pill" type="submit">نشر الملف</button>
+                   </form>
+                </div>
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="color: #ec4899; font-size: 16px; margin-top:0;">إضافة صورة للمادة (جدول/إعلان)</h3>
+                   <form class="upload-form" onsubmit="addSubjectImage(event)">
+                      <select class="input-group" id="img-subj-select" required></select>
+                      <input class="input-group" id="img-title" placeholder="وصف الصورة (مثال: جدول المحاضرات)" required>
+                      <input class="input-group" id="img-link" type="url" placeholder="رابط الصورة المباشر (مثل رابط Imgur)" required>
+                      <button class="pill" type="submit" style="background: #ec4899; margin-top: auto;">رفع الصورة للموقع</button>
+                   </form>
+                </div>
+             </div>
+
+             <div class="admin-section-header"><span>3️⃣</span> إدارة بنك الأسئلة (MCQ)</div>
+             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 24px;">
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4); grid-column: 1 / -1; border-color: #14b8a6;">
+                   <h3 style="color: #14b8a6; font-size: 16px; margin-top:0; display:flex; align-items:center; gap:8px;"><span>🤖</span> الرفع الذكي السريع للأسئلة (نسخ ولصق كود JSON)</h3>
+                   <p style="font-size:12px; color:var(--fg-faint); margin-bottom:10px;">انسخ كود الأسئلة الذي سيولده لك الذكاء الاصطناعي والصقه هنا مباشرة لإضافة مئات الأسئلة في ثانية واحدة.</p>
+                   <form class="upload-form" onsubmit="addAIQuizzes(event)">
+                      <select class="input-group" id="ai-quiz-subj-select" required></select>
+                      <textarea class="input-group" id="ai-quiz-data" rows="4" placeholder='مثال: [{ "q": "سؤال؟", "opt1": "أ", "opt2": "ب", "opt3": "ج", "opt4": "د", "ans": "1" }]' required style="resize:vertical; font-family:monospace; direction:ltr; text-align:left;"></textarea>
+                      <button class="pill" type="submit" style="background: #14b8a6; font-size: 14px; width: fit-content;">رفع الأسئلة بضغطة واحدة 🚀</button>
+                   </form>
+                </div>
+
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="color: #4ade80; font-size: 16px; margin-top:0;">إضافة سؤال يدوياً</h3>
+                   <form class="upload-form" onsubmit="addQuiz(event)">
+                      <select class="input-group" id="quiz-subj-select" required></select>
+                      <input class="input-group" id="quiz-q" placeholder="اكتب نص السؤال هنا..." required>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                         <input class="input-group" id="quiz-opt1" placeholder="الاختيار الأول" required>
+                         <input class="input-group" id="quiz-opt2" placeholder="الاختيار الثاني" required>
+                         <input class="input-group" id="quiz-opt3" placeholder="الاختيار الثالث" required>
+                         <input class="input-group" id="quiz-opt4" placeholder="الاختيار الرابع" required>
+                      </div>
+                      <select class="input-group" id="quiz-ans" required><option value="1">الإجابة: الأول</option><option value="2">الإجابة: الثاني</option><option value="3">الإجابة: الثالث</option><option value="4">الإجابة: الرابع</option></select>
+                      <button class="pill" type="submit" style="background: #22c55e;">حفظ ونشر السؤال</button>
+                   </form>
+                </div>
+
+                <div class="card liquid-glass" style="background:rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.3);">
+                   <h3 style="color: #f87171; font-size: 16px; margin-top:0;">🗑️ مسح كل أسئلة المادة</h3>
+                   <p style="font-size:12px; color:var(--fg-faint); margin-bottom:10px;">احذر: سيتم مسح جميع الأسئلة الموجودة في بنك أسئلة المادة المحددة نهائياً، ولا يمكن التراجع عن هذا الإجراء!</p>
+                   <div class="upload-form" style="margin-top: auto;">
+                      <select class="input-group" id="delete-all-quiz-subj-select" required></select>
+                      <button class="pill" type="button" style="background: var(--danger); font-size: 14px;" onclick="deleteAllQuizzesFromSubject()">مسح بنك أسئلة المادة بالكامل ⚠️</button>
+                   </div>
+                </div>
+             </div>
+
+             <div class="admin-section-header"><span>4️⃣</span> إدارة الأبحاث (حجز الطلاب)</div>
+             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 24px;">
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4); grid-column: 1 / -1; border-color: #8b5cf6;">
+                   <h3 style="color:#8b5cf6; font-size:16px; margin-top:0;">📨 طلبات أبحاث جديدة من الطلاب <span id="research-req-count" class="status-badge status-offline" style="margin-right:8px;">0</span></h3>
+                   <p style="font-size:12px; color:var(--fg-faint); margin-bottom:10px;">لما توافق، البحث بيتضاف للقائمة ويتحجز للطالب اللي طلبه مباشرة.</p>
+                   <div id="research-requests-list"><div style="text-align:center; color:var(--fg-faint); font-size:13px;">مفيش طلبات</div></div>
+                </div>
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4); grid-column: 1 / -1; border-color: #14b8a6;">
+                   <h3 style="color: #14b8a6; font-size: 16px; margin-top:0;">إضافة أبحاث بالجملة (كل بحث في سطر)</h3>
+                   <p style="font-size:12px; color:var(--fg-faint); margin-bottom:10px;">اكتب أو الصق أسماء الأبحاث، كل بحث في سطر منفصل، وهيتضافوا كلهم دفعة واحدة كـ"متاح" لحجز الطلاب.</p>
+                   <form class="upload-form" onsubmit="addBulkResearchTopics(event)">
+                      <textarea class="input-group" id="bulk-research-data" rows="5" placeholder="بحث 1&#10;بحث 2&#10;بحث 3" required style="resize:vertical;"></textarea>
+                      <button class="pill" type="submit" style="background: #14b8a6; width: fit-content;">إضافة كل الأبحاث 🚀</button>
+                   </form>
+                </div>
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="font-size: 16px; margin-top:0;">إضافة بحث واحد</h3>
+                   <form class="upload-form" onsubmit="addResearchTopic(event)">
+                      <input class="input-group" id="single-research-name" placeholder="اسم البحث" required>
+                      <button class="pill" type="submit">إضافة</button>
+                   </form>
+                </div>
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="font-size: 16px; margin-top:0;">تصدير قائمة الحجوزات</h3>
+                   <p style="font-size:12px; color:var(--fg-faint); margin-bottom:10px;">تحميل ملف Excel يوضح كل بحث وين أخده.</p>
+                   <button class="pill" style="background: #10b981;" onclick="exportResearchCSV()">📥 تصدير Excel (.xlsx)</button>
+                </div>
+             </div>
+             <div style="margin-bottom: 12px;">
+                <input type="text" id="admin-search-research" class="search-box" style="margin-bottom:0; background: rgba(0,0,0,.4);" placeholder="🔍 دوّر على بحث أو اسم طالب..." oninput="filterAdminResearch()">
+             </div>
+             <div class="table-responsive">
+                <table class="styled-table">
+                   <thead><tr><th>#</th><th>اسم البحث</th><th>الحالة</th><th>الطالب الحاجز</th><th>الإجراءات</th></tr></thead>
+                   <tbody id="research-table-body"><tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr></tbody>
+                </table>
+             </div>
+          </div>
+
+          <div id="tab-tools" class="admin-tab-content">
+             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="color:#25D366; font-size:16px; margin-top:0;">📩 صندوق الملاحظات</h3>
+                   <div id="fb-status-badge" style="text-align:center; padding:10px; margin-bottom:12px; border-radius:8px; font-weight:bold; font-size:14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);">جاري التحميل...</div>
+                   <div class="input-group"><label>رقم واتساب استقبال الملاحظات</label><input type="tel" id="fb-number" dir="ltr" placeholder="01012345678" inputmode="tel"></div>
+                   <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <button class="pill" onclick="saveFeedbackSettings(true)" style="background:#25D366; color:#111; flex:1;">💾 حفظ وإظهار</button>
+                      <button class="pill" onclick="saveFeedbackSettings(false)" style="background: var(--danger); flex:1;">🙈 إخفاء الصندوق</button>
+                   </div>
+                </div>
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="color: #c084fc; font-size: 16px; margin-top:0;">وضع الصيانة (الصيانة الشاملة)</h3>
+                   <p style="font-size:13px; color:var(--fg-faint); margin-bottom:12px;">عند تفعيل هذا الوضع، سيتم إغلاق الموقع بالكامل أمام الطلاب، ولن يتمكن من الدخول سوى الإدارة.</p>
+                   <div id="maintenance-status-badge" style="text-align:center; padding:10px; margin-bottom:12px; border-radius:8px; font-weight:bold; font-size:14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);">جاري التحقق من الحالة...</div>
+                   <div style="display:flex; gap:10px;">
+                      <button class="pill" id="btn-enable-maint" onclick="setMaintenance(true)" style="background: var(--danger); flex:1;">تفعيل 🔴</button>
+                      <button class="pill" id="btn-disable-maint" onclick="setMaintenance(false)" style="background: var(--online-green); flex:1;">إيقاف 🟢</button>
+                   </div>
+                </div>
+
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4);">
+                   <h3 style="color: #f87171; font-size: 16px; margin-top:0;">إرسال تنبيه عاجل للدفعة 🚨</h3>
+                   <form class="upload-form" onsubmit="updateAlert(event)">
+                      <input class="input-group" id="alert-input" placeholder="اكتب نص التنبيه ليظهر أعلى الموقع..." required>
+                      <div style="display:flex; gap:10px;">
+                         <button class="pill" type="submit" style="background: var(--danger); flex: 1;">نشر للكل</button>
+                         <button class="pill" type="button" style="background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); flex: 1;" onclick="clearGlobalAlert()">إلغاء من الكل 🗑️</button>
+                      </div>
+                   </form>
+                </div>
+
+                <div class="card liquid-glass" style="background:rgba(0,0,0,.4); grid-column: 1/-1;">
+                   <h3 style="color: var(--danger); font-size: 16px; margin-top:0;">منطقة الخطر (إجراءات حساسة)</h3>
+                   <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                       <button class="pill" style="background: transparent; border: 1px solid var(--danger); color:var(--danger);" onclick="resetAllScores()">🔄 تصفير نقاط كل الطلاب</button>
+                       <button class="pill" style="background: transparent; border: 1px solid var(--primary); color:var(--primary);" onclick="syncAllLeaderboard()">🔁 مزامنة لوحة الشرف والأرقام (مرة واحدة بعد التحديث)</button>
+                       <button class="pill" style="background: transparent; border: 1px solid var(--warning); color:var(--warning);" onclick="clearAdminLogs()">🗑️ مسح سجل النشاط بالكامل</button>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <div id="tab-logs" class="admin-tab-content">
+             <div class="flex-between mb-4">
+                <h3 style="margin:0; color:var(--primary); font-size: 16px;">سجل نشاط الإدارة</h3>
+                <span style="font-size:12px; color:var(--fg-faint);">يعرض آخر 50 عملية</span>
+             </div>
+             <div id="admin-logs-list" style="max-height: 500px; overflow-y: auto; padding-right: 5px;">
+                <div class="empty-state">جاري تحميل السجل...</div>
+             </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- نافذة الدخول -->
+  <div id="auth-overlay" class="overlay-bg" style="display: none;">
+    <div class="modal-box liquid-glass">
+      <h2 id="auth-title" class="z-content" style="text-align: center; margin-top:0; color: var(--primary); font-size: 20px;">تسجيل دخول الطالب</h2>
+      <form class="upload-form z-content" onsubmit="handleAuth(event)">
+        <div class="input-group" id="name-group"><label>الاسم الكامل</label><input type="text" id="auth-name" placeholder="الاسم رباعي" autocomplete="name"></div>
+        <div class="input-group" id="phone-group"><label>رقم الهاتف</label><input type="tel" id="auth-phone" placeholder="01xxxxxxxxx" autocomplete="tel"></div>
+        <div class="input-group" id="level-group" style="display: none;">
+          <label>المستوى الدراسي</label>
+          <select id="auth-level"><option value="1">المستوى الأول</option><option value="2">المستوى الثاني</option></select>
+        </div>
+        <div class="input-group"><label>البريد الإلكتروني</label><input type="email" id="auth-email" placeholder="student@example.com" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" dir="ltr"></div>
+        <div class="input-group" id="pass-group"><label>كلمة المرور</label><input type="password" id="auth-pass" placeholder="••••••••" minlength="6" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" dir="ltr"><a href="javascript:void(0)" onclick="togglePassVisibility()" id="pass-eye" style="font-size:12px; color:var(--fg-soft); margin-top:6px; text-decoration:underline;">👁️ إظهار كلمة المرور</a></div>
+        <div id="forgot-pass-wrap" style="text-align: left; margin-top: 4px;"><a href="javascript:void(0)" onclick="handleForgotPassword()" style="color: var(--fg-soft); font-size: 12px; text-decoration: underline;">نسيت كلمة المرور؟</a> <span style="color:var(--fg-faint); font-size:12px;">•</span> <a href="javascript:void(0)" onclick="resetWithPastedLink()" style="color: var(--gold); font-size: 12px; text-decoration: underline;">معايا رابط الاستعادة</a></div>
+        <button class="pill" type="submit" id="auth-submit-btn" style="width:100%; height:44px; margin-top:10px; font-size: 15px;">دخول</button>
+      </form>
+      <p class="z-content" style="text-align:center; font-size:13px; margin-top:16px; color:var(--fg-soft);">
+        <span id="auth-switch-text">ليس لديك حساب؟</span>
+        <a href="javascript:void(0)" onclick="toggleAuthMode()" id="auth-switch-link" style="color:var(--primary); font-weight:bold; margin-right:4px;">إنشاء حساب جديد</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="profile-overlay" class="overlay-bg" style="display: none;" onclick="closeModal(event, 'profile-overlay')">
+    <div class="modal-box liquid-glass" onclick="event.stopPropagation()">
+      <h2 class="z-content" style="text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 20px;">الملف الشخصي 👤</h2>
+      <div id="profile-content" class="z-content"></div>
+      <button class="pill z-content" style="width: 100%; background: rgba(100,100,100,.2); margin-top: 10px; color: var(--fg);" onclick="closeModal(null, 'profile-overlay')">إغلاق</button>
+    </div>
+  </div>
+
+  <div id="tracking-overlay" class="overlay-bg" style="display: none;" onclick="closeModal(event, 'tracking-overlay')">
+    <div class="modal-box large liquid-glass" onclick="event.stopPropagation()" style="background: var(--shade); padding: 0;">
+      <div style="padding: 24px;">
+         <div id="tracking-content" class="z-content"></div>
+         <button class="pill z-content" style="width: 100%; background: rgba(100,100,100,.2); margin-top: 16px; color: var(--fg); border: 1px solid rgba(100,100,100,.2);" onclick="closeModal(null, 'tracking-overlay')">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- تحميل Firebase مع مصادر بديلة إذا فشل الأول -->
+  <script>
+    var __S=[function(n){return 'https://www.gstatic.com/firebasejs/8.10.1/firebase-'+n+'.js'},function(n){return 'https://cdnjs.cloudflare.com/ajax/libs/firebase/8.10.1/firebase-'+n+'.min.js'},function(n){return 'https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-'+n+'.js'}];
+    function __fb(n,i){var f=window.firebase,ok=f&&(n==='app'||(n==='auth'?f.auth:f.database));if(ok)return;document.write('<scr'+'ipt src="'+__S[i](n)+'"></scr'+'ipt>');}
+  </script>
+  <script>__fb('app',0)</script><script>__fb('app',1)</script><script>__fb('app',2)</script>
+  <script>__fb('auth',0)</script><script>__fb('auth',1)</script><script>__fb('auth',2)</script>
+  <script>__fb('database',0)</script><script>__fb('database',1)</script><script>__fb('database',2)</script>
+
+  <script>
+    const ADMIN_WHATSAPP_NUMBER = "201006109851";
+    let feedbackCfg = { enabled: true, number: '' };
+    const firebaseConfig = { apiKey: "AIzaSyB6FXWiprXlv6eoLhRIDrwyzKmR9cf3F8Y", authDomain: "university-platform-f51a1.firebaseapp.com", databaseURL: "https://university-platform-f51a1-default-rtdb.firebaseio.com", projectId: "university-platform-f51a1", storageBucket: "university-platform-f51a1.firebasestorage.app", messagingSenderId: "160054277275", appId: "1:160054277275:web:79482938bc46e33c52c23e" };
+
+    /* ===== كل المتغيرات معرّفة في الأعلى قبل أي استخدام (يمنع خطأ before initialization) ===== */
+    let currentUser = null, currentStudentData = null, isRegisterMode = false, activeLevel = 1, allUsersList = [], onlineUsersMap = {};
+    let adminLogsListening = false, isMaintenanceActive = false, privateAlertListening = false;
+    let db = [], currentSubjectId = null, userDataRef = null, searchTimeout = null;
+    let researchTopics = [], researchSearchTimeout = null, researchListening = false;
+    let researchRequests = [], myRequest = null, adminResearchOn = false;
+    let presenceInitialized = false, heartbeatInterval = null;
+
+    /* ===== تهيئة Firebase بأمان ===== */
+    const FB_OK = !!(window.firebase && window.firebase.auth && window.firebase.database);
+    function makeStub() { const p = new Proxy(function(){}, { get: (t, k) => (k === 'then' ? (() => p) : p), apply: () => p }); return p; }
+    const FB = FB_OK ? window.firebase : makeStub();
+    if (FB_OK) { if (!FB.apps.length) FB.initializeApp(firebaseConfig); }
+    const auth = FB_OK ? FB.auth() : makeStub();
+    const database = FB_OK ? FB.database() : makeStub();
+
+    /* ===== توفير اتصالات Firebase: فصل الاتصال تلقائيًا للطالب الخامل (حد الخطة المجانية 100 اتصال متزامن) ===== */
+    var __offline = false, __idleT = null, __lastWake = 0, IDLE_MS = 20000, HIDDEN_MS = 8000;
+    function __isAdmin() { try { return !!(currentStudentData && currentStudentData.isAdmin === true); } catch (e) { return false; } }
+    function __goOffline() { if (__offline || __isAdmin() || isRegistering) return; try { database.goOffline(); __offline = true; } catch (e) {} }
+    function __wake() {
+      clearTimeout(__idleT);
+      var g = document.getElementById('research-grid'); var onResearch = g && g.offsetParent !== null;
+      if (__offline && !(onResearch && currentUser && !__isAdmin())) { try { database.goOnline(); } catch (e) {} __offline = false; }
+      __idleT = setTimeout(__goOffline, IDLE_MS);
+    }
+    ['click', 'keydown', 'touchstart', 'scroll', 'mousemove'].forEach(function (ev) {
+      window.addEventListener(ev, function () { var n = Date.now(); if (n - __lastWake < 3000) return; __lastWake = n; __wake(); }, { passive: true, capture: true });
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) { try { __fetchFeedbackCfg(); } catch (e) {} }
+      if (document.hidden) { clearTimeout(__idleT); __idleT = setTimeout(__goOffline, HIDDEN_MS); } else { __wake(); }
+    });
+    __wake();
+    if (!FB_OK) { document.getElementById('fb-error').style.display = 'flex'; console.error('Firebase library failed to load'); }
+
+    window.addEventListener('unhandledrejection', e => { const m = (e.reason && e.reason.message) || String(e.reason); if (window.Swal) Swal.fire('حصل خطأ', escText(m), 'error'); });
+    let isRegistering = false, authReady = false, leaderboardSynced = '', adminListenersOn = false, lbQuery = null;
+
+    /* ===== أدوات مساعدة للتسجيل والدخول ===== */
+    function ensureOnline() { clearTimeout(__idleT); if (__offline) { try { database.goOnline(); } catch (e) {} __offline = false; } __idleT = setTimeout(__goOffline, IDLE_MS); }
+    function withTimeout(p, ms, msg) {
+      return new Promise((res, rej) => {
+        const t = setTimeout(() => rej(Object.assign(new Error(msg || 'السيرفر اتأخر في الرد، اتأكد من الإنترنت وجرب تاني.'), { code: 'timeout' })), ms);
+        Promise.resolve(p).then(v => { clearTimeout(t); res(v); }, e => { clearTimeout(t); rej(e); });
+      });
+    }
+    function normDigits(x) { return String(x || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)); }
+    function authErrMsg(err) {
+      const c = (err && (err.code || '')) || '';
+      const bad = 'الإيميل أو كلمة المرور غلط. اتأكد منهم، ولو نسيت الباسورد اضغط "نسيت كلمة المرور".';
+      const m = {
+        'auth/invalid-email': 'صيغة الإيميل غير صحيحة.',
+        'auth/user-not-found': 'مفيش حساب بالإيميل ده. اتأكد من الإيميل أو أنشئ حساب جديد.',
+        'auth/wrong-password': 'كلمة المرور غلط. لو نسيتها اضغط "نسيت كلمة المرور".',
+        'auth/invalid-credential': bad, 'auth/invalid-login-credentials': bad, 'auth/invalid-login-credential': bad,
+        'auth/user-disabled': 'الحساب ده موقوف. كلّم الإدارة.',
+        'auth/too-many-requests': 'محاولات كتير غلط. استنى كام دقيقة أو استعمل "نسيت كلمة المرور".',
+        'auth/network-request-failed': 'فيه مشكلة في الإنترنت، جرب تاني.',
+        'auth/email-already-in-use': 'الإيميل ده مسجل قبل كده. سجّل دخول أو استعمل "نسيت كلمة المرور".',
+        'auth/weak-password': 'كلمة المرور ضعيفة (6 حروف على الأقل).',
+        'auth/missing-password': 'اكتب كلمة المرور.',
+        'auth/operation-not-allowed': 'تسجيل الدخول بالإيميل غير مفعّل في Firebase (Authentication ← Sign-in method ← Email/Password).',
+        'auth/unauthorized-domain': 'دومين الموقع غير مضاف في Firebase (Authentication ← Settings ← Authorized domains).',
+        'auth/invalid-api-key': 'مفتاح Firebase غير صحيح.',
+        'auth/web-storage-unsupported': 'المتصفح بيمنع التخزين. افتح الموقع من Chrome أو Safari (مش من جوه واتساب/فيسبوك) وبدون وضع التصفح الخفي.',
+        'auth/internal-error': 'حصل خطأ داخلي، جرب تاني بعد شوية.',
+        'PERMISSION_DENIED': 'قواعد قاعدة البيانات (Rules) رفضت العملية. راجع القواعد.',
+        'timeout': (err && err.message) || 'انتهت المهلة.'
+      };
+      if (c === 'auth/internal-error') {
+        const raw = String((err && err.message) || '');
+        if (/CONFIGURATION_NOT_FOUND/.test(raw)) return 'خدمة Authentication مش متفعّلة في مشروع Firebase. ادخل Firebase Console ← Authentication ← اضغط Get started، وبعدها فعّل Email/Password.';
+        if (/API_KEY_SERVICE_BLOCKED|API_KEY_HTTP_REFERRER_BLOCKED|referer|IP_ADDRESS_BLOCKED/i.test(raw)) return 'مفتاح API مقيّد. ادخل Google Cloud Console ← APIs & Services ← Credentials ← المفتاح، وضيف https://1web1.github.io/* في HTTP referrers، وتأكد إن Identity Toolkit API مسموح للمفتاح.';
+        if (/OPERATION_NOT_ALLOWED/.test(raw)) return m['auth/operation-not-allowed'];
+        if (/INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_CREDENTIAL/.test(raw)) return bad;
+        if (/USER_DISABLED/.test(raw)) return m['auth/user-disabled'];
+        console.error('Firebase internal-error:', raw);
+        return 'خطأ داخلي من Firebase. التفاصيل: ' + raw.replace(/\s+/g, ' ').slice(0, 220);
+      }
+      if (m[c]) return m[c];
+      if (/permission_denied/i.test((err && err.message) || '')) return m['PERMISSION_DENIED'];
+      return 'حصل خطأ غير متوقع' + (c ? ' (' + c + ')' : '') + '. ' + ((err && err.message) ? '' : '');
+    }
+    function togglePassVisibility() {
+      const i = document.getElementById('auth-pass'), a = document.getElementById('pass-eye');
+      const show = i.type === 'password'; i.type = show ? 'text' : 'password'; a.innerText = show ? '🙈 إخفاء كلمة المرور' : '👁️ إظهار كلمة المرور';
+    }
+    if (FB_OK) { try { auth.setPersistence(FB.auth.Auth.Persistence.LOCAL).catch(() => auth.setPersistence(FB.auth.Auth.Persistence.SESSION).catch(() => {})); } catch (e) {} }
+
+    const quizOrder = {};
+    function detachAll(uid) {
+      ['users', 'online_users', 'alert', 'subjects', 'admin_logs', 'research_topics', 'research_requests', '.info/connected'].forEach(p => database.ref(p).off()); adminResearchOn = false; researchRequests = [];
+      if (lbQuery) { lbQuery.off(); lbQuery = null; }
+      if (userDataRef) { userDataRef.off(); userDataRef = null; }
+      if (uid) database.ref('users/' + uid + '/privateAlert').off();
+      window._listenersReady = false; window._lvlSet = false; adminListenersOn = false; adminLogsListening = false; privateAlertListening = false; presenceInitialized = false; leaderboardSynced = '';
+      db = []; allUsersList = []; onlineUsersMap = {};
+    }
+    function _seenNow(e) { if (!currentUser) return; if (e && e.type === 'visibilitychange' && document.visibilityState !== 'hidden') return; database.ref('users/' + currentUser.uid + '/lastSeen').set(FB.database.ServerValue.TIMESTAMP); }
+    function syncLeaderboard(uid, d) { if (!d || d.isBanned) return; const sig = d.name + '|' + (d.score || 0) + '|' + (d.level || 1); if (sig === leaderboardSynced) return; leaderboardSynced = sig; database.ref('leaderboard/' + uid).update({ name: d.name, score: d.score || 0, level: d.level || 1 }); }
+    function listenToLeaderboard() { lbQuery = database.ref('leaderboard').orderByChild('score').limitToLast(5); lbQuery.on('value', snap => { const a = []; snap.forEach(c => { if (c.val() && c.val().name) a.push({ uid: c.key, ...c.val() }); }); a.sort((x, y) => (y.score || 0) - (x.score || 0)); renderLeaderboard(a); }); }
+    function syncAllLeaderboard() {
+      const up = {};
+      allUsersList.forEach(u => {
+        up['leaderboard/' + u.uid] = u.isBanned ? null : { name: u.name, score: u.score || 0, level: u.level || 1 };
+        const p = String(u.phone || '').replace(/\D/g, ''); if (p) up['phones/' + p] = u.uid;
+        const sv = u.solvedQuizzes || {}; Object.keys(sv).forEach(k => { const x = sv[k]; if (x === true || (x && x.status === 'correct')) up['users/' + u.uid + '/scoredQuizzes/' + k] = true; });
+      });
+      database.ref().update(up).then(() => { logAdminAction('مزامنة', 'مزامنة لوحة الشرف والأرقام'); Swal.fire('تم', 'تمت المزامنة بنجاح', 'success'); });
+    }
+    function toggleTheme() {
+        const body = document.body; const themeBtn = document.getElementById('theme-toggle-btn');
+        if (body.classList.contains('light-mode')) { body.classList.remove('light-mode'); themeBtn.innerText = '🌞'; try { localStorage.setItem('theme', 'dark'); } catch (e) {} }
+        else { body.classList.add('light-mode'); themeBtn.innerText = '🌙'; try { localStorage.setItem('theme', 'light'); } catch (e) {} }
+    }
+    function initTheme() {
+        let saved = null; try { saved = localStorage.getItem('theme'); } catch (e) {}
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        if (saved === 'light') { document.body.classList.add('light-mode'); if (themeBtn) themeBtn.innerText = '🌙'; }
     }
 
-    // 5. عند ضغط الطالب على "تأكيد وتغيير"
-    resetForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // منع إعادة تحميل الصفحة
-        const newPassword = newPasswordInput.value;
-        submitBtn.disabled = true; // إيقاف الزر مؤقتًا
-        submitBtn.innerText = "جاري التغيير...";
+    function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
-        // تنفيذ طلب التغيير في Firebase
-        confirmPasswordReset(auth, actionCode, newPassword)
-            .then(() => {
-                // تم التغيير بنجاح
-                resetForm.classList.add('hidden');
-                messageBox.innerHTML = '<p class="success">تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.</p>';
-            })
-            .catch((error) => {
-                // فشل التغيير لأي سبب
-                submitBtn.disabled = false;
-                submitBtn.innerText = "تأكيد وتغيير";
-                messageBox.innerHTML = '<p class="error">حدث خطأ أثناء التغيير. حاول مرة أخرى.</p>';
-            });
+    function formatLastSeen(timestamp) {
+      if (!timestamp) return 'غير متوفر';
+      const diff = Math.max(0, Date.now() - timestamp);
+      const minutes = Math.floor(diff / 60000); const hours = Math.floor(minutes / 60); const days = Math.floor(hours / 24);
+      if (minutes < 1) return 'الآن';
+      if (hours < 1) return `منذ ${minutes} دقيقة`;
+      if (days < 1) return `منذ ${hours} ساعة`;
+      if (days === 1) return `منذ يوم`;
+      if (days === 2) return `منذ يومين`;
+      if (days <= 10) return `منذ ${days} أيام`;
+      return `منذ ${days} يوم`;
+    }
+
+    function escapeHtml(str) { if (str === null || str === undefined) return ''; return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function escText(str) { if (str === null || str === undefined) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+    /* يمنع روابط javascript: */
+    function safeUrl(u) { try { const x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : '#'; } catch (e) { return '#'; } }
+
+    function getStudentShortId(uid, customId) { if (customId && customId.trim() !== '') return customId; return uid ? uid.substring(0,6).toUpperCase() : 'غير متوفر'; }
+
+    function listenToMaintenance() {
+      database.ref('settings/maintenanceMode').on('value', snap => {
+        isMaintenanceActive = snap.val() || false; checkMaintenanceUI();
+        const statusBadge = document.getElementById('maintenance-status-badge');
+        const btnEnable = document.getElementById('btn-enable-maint'); const btnDisable = document.getElementById('btn-disable-maint');
+        if (statusBadge && btnEnable && btnDisable) {
+          if (isMaintenanceActive) {
+            statusBadge.innerHTML = 'الحالة الحالية: <span style="color:#ef4444;">مفعل 🔴 (الموقع مغلق)</span>';
+            statusBadge.style.borderColor = '#ef4444'; statusBadge.style.background = 'rgba(239,68,68,.1)';
+            btnEnable.style.opacity = '1'; btnEnable.style.boxShadow = '0 0 10px rgba(239,68,68,.5)';
+            btnDisable.style.opacity = '.4'; btnDisable.style.boxShadow = 'none';
+          } else {
+            statusBadge.innerHTML = 'الحالة الحالية: <span style="color:#22c55e;">معطل 🟢 (الموقع مفتوح)</span>';
+            statusBadge.style.borderColor = '#22c55e'; statusBadge.style.background = 'rgba(34,197,94,.1)';
+            btnDisable.style.opacity = '1'; btnDisable.style.boxShadow = '0 0 10px rgba(34,197,94,.5)';
+            btnEnable.style.opacity = '.4'; btnEnable.style.boxShadow = 'none';
+          }
+        }
+      });
+    }
+    listenToMaintenance();
+
+    function checkMaintenanceUI() {
+      const overlay = document.getElementById('maintenance-overlay'); const mainSite = document.getElementById('main-site'); const cinematicHero = document.querySelector('.cinematic-hero');
+      const isUserAdmin = currentStudentData && currentStudentData.isAdmin === true;
+      if (isMaintenanceActive && !isUserAdmin) { overlay.style.display = 'flex'; const ab = document.getElementById('maint-admin-btn'); if (ab) ab.style.display = currentUser ? 'none' : 'inline-block'; if (mainSite) mainSite.style.display = 'none'; if (cinematicHero) cinematicHero.style.display = 'none'; }
+      else { overlay.style.display = 'none'; if (authReady && !currentUser && !isRegistering) document.getElementById('auth-overlay').style.display = 'flex'; if (mainSite) mainSite.style.display = 'block'; if (cinematicHero) cinematicHero.style.display = 'flex'; }
+    }
+
+    function setMaintenance(enable) {
+      database.ref('settings/maintenanceMode').set(enable);
+      logAdminAction('تغيير وضع الصيانة', enable ? 'تفعيل وضع الصيانة (تم إغلاق الموقع عن الطلاب)' : 'إيقاف وضع الصيانة (تم فتح الموقع)');
+      Swal.fire('تم التحديث', enable ? 'تم إغلاق الموقع عن الطلاب وتفعيل الصيانة.' : 'تم فتح الموقع للجميع بنجاح.', 'success');
+    }
+
+    function startSession(user) {
+      window._lastUid = user.uid; ensureOnline();
+      withTimeout(database.ref('users/' + user.uid).once('value'), 40000, 'السيرفر ما ردّش وإنت داخل. اتأكد من الإنترنت وحاول تاني.').then((snap) => {
+        const val = snap.val(); window._ssRetry = 0;
+        if (!val) { Swal.fire('حسابك غير مكتمل', 'الحساب اتعمل بس بياناته ماكتملتش (غالبًا النت قطع وقت التسجيل). اضغط "إنشاء حساب جديد" واكتب نفس الإيميل والباسورد وبياناتك وهيتكمل.', 'warning'); auth.signOut(); return; }
+        if (val.isBanned) { Swal.fire('محظور!', `⚠️ تم حظرك!<br>السبب: ${escText(val.banReason)}`, 'error'); logoutStudent(); return; }
+        currentUser = user; document.getElementById('auth-overlay').style.display = 'none';
+        if (!window._lvlSet) { window._lvlSet = true; switchLevel(val.level == 2 ? 2 : 1); }
+        try { database.ref('settings/maintenanceMode').off(); listenToMaintenance(); } catch (e) {}
+        loadStudentData(user.uid); listenToPrivateAlerts(user.uid);
+      }).catch((err) => { if (err && err.code === 'timeout' && (window._ssRetry = (window._ssRetry || 0) + 1) <= 4) { setTimeout(() => { if (auth.currentUser) startSession(auth.currentUser); }, 3000 + Math.random() * 5000); return; } window._ssRetry = 0; Swal.fire('تعذّر تحميل حسابك', escText(authErrMsg(err)), 'error'); auth.signOut(); });
+    }
+    auth.onAuthStateChanged((user) => {
+      authReady = true;
+      if (isRegistering) return;
+      if (user) startSession(user);
+      else {
+        detachAll(window._lastUid);
+        currentUser = null; currentStudentData = null; checkMaintenanceUI(); renderResearchHome();
+        document.getElementById('auth-overlay').style.display = isMaintenanceActive ? 'none' : 'flex'; document.getElementById('user-greeting').innerHTML = '';
+        document.getElementById('admin-panel').style.display = 'none';
+      }
     });
-</script>
 
+    function listenToPrivateAlerts(uid) {
+        if (privateAlertListening) return;
+        database.ref('users/' + uid + '/privateAlert').on('value', snap => {
+            const msg = snap.val();
+            if (msg) { Swal.fire({ title: '📩 رسالة إدارية هامة', text: msg, icon: 'info', confirmButtonText: 'حسناً، فهمت', allowOutsideClick: false, allowEscapeKey: false }).then(() => { database.ref('users/' + uid + '/privateAlert').remove(); }); }
+        });
+        privateAlertListening = true;
+    }
+
+
+    function setupPresence(uid, userData) {
+      const myStatusRef = database.ref('online_users/' + uid); const userLastSeenRef = database.ref('users/' + uid + '/lastSeen');
+      if (presenceInitialized) return; presenceInitialized = true;
+      database.ref('.info/connected').on('value', (snap) => {
+        if (snap.val() === true) {
+          myStatusRef.onDisconnect().remove(); userLastSeenRef.onDisconnect().set(FB.database.ServerValue.TIMESTAMP);
+          myStatusRef.set({ name: userData.name, email: userData.email || '', loginTime: FB.database.ServerValue.TIMESTAMP });
+          userLastSeenRef.set(FB.database.ServerValue.TIMESTAMP);
+        }
+      });
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+      heartbeatInterval = setInterval(() => { if (currentUser && !__offline) userLastSeenRef.set(FB.database.ServerValue.TIMESTAMP); }, 60000);
+      document.addEventListener('visibilitychange', _seenNow);
+      window.addEventListener('pagehide', _seenNow);
+    }
+
+    function updateDashboardStats() {
+       document.getElementById('stat-students').innerText = allUsersList.length; document.getElementById('stat-online').innerText = Object.keys(onlineUsersMap).length;
+       document.getElementById('stat-subjects').innerText = db.length; let qCount = 0; db.forEach(s => qCount += s.quizzes.length); document.getElementById('stat-questions').innerText = qCount;
+    }
+
+    function listenToOnlinePresence() { database.ref('online_users').on('value', (snap) => { onlineUsersMap = snap.val() || {}; updateDashboardStats(); renderStudentsTable(); }); }
+
+    function listenToUsersData() {
+      database.ref('users').on('value', (snapshot) => {
+        let users = snapshot.val() || {}; allUsersList = []; for (let id in users) allUsersList.push({ uid: id, ...users[id] }); try { renderAdminResearchTable(); } catch (e) {}
+        allUsersList.sort((a, b) => (b.score || 0) - (a.score || 0)); updateDashboardStats(); renderStudentsTable();
+      });
+    }
+
+    function logAdminAction(actionTitle, detailsText) {
+      if (!currentStudentData || !currentUser || currentStudentData.isAdmin !== true) return;
+      database.ref('admin_logs').push({ adminName: currentStudentData.name, uid: currentUser.uid, action: actionTitle, details: detailsText, timestamp: FB.database.ServerValue.TIMESTAMP });
+    }
+
+    function listenToAdminLogs() {
+      if (adminLogsListening) return;
+      const container = document.getElementById('admin-logs-list'); if (!container) return;
+      database.ref('admin_logs').limitToLast(50).on('value', snap => {
+        if (!snap.exists()) { container.innerHTML = '<div class="empty-state">لا يوجد نشاط مسجل حتى الآن. السجل فارغ.</div>'; return; }
+        const logs = []; snap.forEach(c => { logs.push(c.val()); });
+        logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        container.innerHTML = logs.map(l => {
+          const timeNum = l.timestamp || Date.now(); const date = new Date(timeNum).toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' });
+          const actionText = l.action || 'إجراء'; let badgeColor = actionText.includes('حذف') || actionText.includes('مسح') || actionText.includes('تصفير') || actionText.includes('حظر') ? 'var(--danger)' : 'var(--primary)';
+          return `<div class="log-item"><div class="log-header"><div class="log-admin">👤 ${escText(l.adminName || 'أدمن')} <span class="log-badge" style="color:${badgeColor}; border:1px solid ${badgeColor};">${escText(actionText)}</span></div><div class="log-time">🕒 ${date}</div></div><div class="log-body">التفاصيل: <strong>${escText(l.details || 'لا توجد تفاصيل')}</strong></div></div>`;
+        }).join('');
+      }, (error) => {
+        container.innerHTML = `<div class="empty-state" style="color:#ef4444; border: 1px solid #ef4444; background: rgba(239,68,68,.1); padding: 15px;">❌ عذراً، تم رفض الوصول للسجل.<br>الخطأ: ${escText(error.message)}</div>`;
+      });
+      adminLogsListening = true;
+    }
+
+    function clearAdminLogs() {
+      Swal.fire({title: 'هل أنت متأكد؟', text: "سيتم مسح جميع السجلات بشكل نهائي ولن تتمكن من استعادتها!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'نعم، امسح السجل'}).then((result) => {
+        if (result.isConfirmed) { database.ref('admin_logs').remove().then(() => { Swal.fire('تم!', 'تم مسح السجل بنجاح.', 'success'); }); }
+      });
+    }
+
+    function csvCell(v) { let t = String(v === null || v === undefined ? '' : v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; }
+    function exportStudentsCSV() {
+        let csv = "ID,الاسم,رقم الهاتف,البريد الإلكتروني,النقاط,المستوى,الحالة\n";
+        allUsersList.forEach(u => {
+            const status = u.isBanned ? "محظور" : "نشط";
+            csv += [getStudentShortId(u.uid, u.studentId), u.name, u.phone || '', u.email, u.score || 0, u.level || 1, status].map(csvCell).join(',') + "\n";
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "students_database.csv"; link.click();
+        logAdminAction("تصدير بيانات", "تم تحميل قائمة الطلاب بملف Excel/CSV");
+    }
+
+    function filterAdminStudents() {
+        const query = document.getElementById('admin-search-student').value.toLowerCase();
+        document.querySelectorAll('#students-table-body tr').forEach(row => { if (row.cells.length > 1) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
+    }
+
+    /* ===== إدارة: إضافة/خصم نقاط لطالب معين (تظهر في لوحة الشرف) ===== */
+    async function adminAddPoints(uid) {
+      const u = allUsersList.find(x => x.uid === uid); if (!u) return;
+      const cur = u.score || 0;
+      const { value: vals } = await Swal.fire({
+        title: 'نقاط الطالب: ' + escText(u.name),
+        html: `<div style="font-size:14px; margin-bottom:8px;">النقاط الحالية: <b style="color:#ffd700;">${cur}</b></div>` +
+              `<input id="pts-amount" type="number" step="1" class="swal2-input" placeholder="عدد النقاط (سالب للخصم)" style="direction:ltr;">` +
+              `<input id="pts-reason" class="swal2-input" placeholder="السبب (اختياري)">`,
+        focusConfirm: false, showCancelButton: true, confirmButtonText: 'تطبيق', cancelButtonText: 'إلغاء',
+        preConfirm: () => {
+          const n = parseInt(document.getElementById('pts-amount').value, 10);
+          if (!Number.isFinite(n) || n === 0) { Swal.showValidationMessage('اكتب عدد نقاط صحيح (غير صفر)'); return false; }
+          return { n, reason: document.getElementById('pts-reason').value.trim() };
+        }
+      });
+      if (!vals) return;
+      const delta = Math.max(vals.n, -cur);
+      if (delta === 0) return Swal.fire('تنبيه', 'رصيد الطالب صفر بالفعل، مفيش نقاط تتخصم.', 'info');
+      const inc = FB.database.ServerValue.increment(delta), up = {};
+      up['users/' + uid + '/score'] = inc;
+      if (!u.isBanned) { up['leaderboard/' + uid + '/score'] = inc; up['leaderboard/' + uid + '/name'] = u.name; up['leaderboard/' + uid + '/level'] = u.level || 1; }
+      try {
+        await database.ref().update(up);
+        logAdminAction(delta > 0 ? 'إضافة نقاط' : 'خصم نقاط', `الطالب: ${u.name} | ${delta > 0 ? '+' : ''}${delta}${vals.reason ? ' | السبب: ' + vals.reason : ''}`);
+        Swal.fire('تم ✅', `${delta > 0 ? 'اتضافت' : 'اتخصمت'} ${Math.abs(delta)} نقطة ${delta > 0 ? 'لـ' : 'من'} ${escText(u.name)}.` + (u.isBanned ? ' (الطالب محظور فمش هيظهر في لوحة الشرف)' : ''), 'success');
+      } catch (e) { Swal.fire('خطأ', 'معرفناش نحدّث النقاط: ' + (e && e.message ? e.message : ''), 'error'); }
+    }
+    async function editStudentProfile(uid, currentName, currentPhone, currentStudentId) {
+      const { value: formValues } = await Swal.fire({
+        title: 'تعديل بيانات الطالب',
+        html: `<input id="swal-input1" class="swal2-input" value="${escText(currentName)}" placeholder="الاسم الكامل">` +
+              `<input id="swal-input2" class="swal2-input" value="${escText(currentPhone)}" placeholder="رقم الهاتف">` +
+              `<input id="swal-input3" class="swal2-input" value="${escText(currentStudentId && currentStudentId !== 'undefined' ? currentStudentId : '')}" placeholder="كود الطالب (ID)">`,
+        focusConfirm: false, showCancelButton: true, confirmButtonText: 'حفظ التعديل',
+        preConfirm: () => [document.getElementById('swal-input1').value, document.getElementById('swal-input2').value, document.getElementById('swal-input3').value]
+      });
+      if (formValues && formValues[0]) {
+        database.ref('users/' + uid).update({ name: formValues[0], phone: formValues[1], studentId: formValues[2] }); database.ref('leaderboard/' + uid + '/name').set(formValues[0]);
+        logAdminAction('تعديل طالب', `تم تعديل بيانات: ${formValues[0]}`);
+        Swal.fire('تم', 'تم تحديث بيانات الطالب بنجاح', 'success');
+      }
+    }
+
+    function toggleAuthMode() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('name-group').style.display = isRegisterMode ? 'flex' : 'none';
+      document.getElementById('phone-group').style.display = isRegisterMode ? 'flex' : 'none';
+      document.getElementById('level-group').style.display = isRegisterMode ? 'flex' : 'none';
+      document.getElementById('forgot-pass-wrap').style.display = isRegisterMode ? 'none' : 'block';
+      document.getElementById('auth-title').innerText = isRegisterMode ? 'إنشاء حساب طالب جديد' : 'تسجيل دخول الطالب';
+      document.getElementById('auth-pass').setAttribute('autocomplete', isRegisterMode ? 'new-password' : 'current-password');
+      document.getElementById('auth-submit-btn').innerText = isRegisterMode ? 'تسجيل حساب' : 'دخول';
+      document.getElementById('auth-switch-text').innerText = isRegisterMode ? 'لديك حساب بالفعل؟' : 'ليس لديك حساب؟';
+      document.getElementById('auth-switch-link').innerText = isRegisterMode ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const btn = document.getElementById('auth-submit-btn'); if (btn.disabled) return;
+      if (!FB_OK) return Swal.fire('خطأ', 'مكتبة Firebase ماتحمّلتش (النت ضعيف أو محجوب). حدّث الصفحة وجرب تاني.', 'error');
+      const email = document.getElementById('auth-email').value.trim().toLowerCase(); const pass = document.getElementById('auth-pass').value;
+      const name = document.getElementById('auth-name').value.trim().replace(/\s+/g, ' '); const level = document.getElementById('auth-level').value;
+      const phone = normDigits(document.getElementById('auth-phone').value).replace(/[\s\-+()]/g, '').replace(/^002/, '').replace(/^20(?=1)/, '0');
+      if (!email || !pass) return Swal.fire('تنبيه', 'اكتب الإيميل وكلمة المرور.', 'warning');
+      btn.disabled = true; btn.innerText = 'جاري المعالجة...'; ensureOnline();
+      try { if (isRegisterMode) await doRegister(email, pass, name, level, phone); else await doLogin(email, pass); }
+      finally { btn.disabled = false; btn.innerText = isRegisterMode ? 'تسجيل حساب' : 'دخول'; }
+    }
+
+    async function doLogin(email, pass) {
+      const __isBad = e => /invalid-(login-)?credentials?|wrong-password|user-not-found/.test((e && e.code) || '') || /INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND/.test(String((e && e.message) || ''));
+      try { await auth.signInWithEmailAndPassword(email, pass); }
+      catch (err) {
+        /* مسافة زيادة في أول/آخر الباسورد (كيبورد الموبايل) نجرب بدونها مرة واحدة */
+        if (__isBad(err) && pass !== pass.trim() && pass.trim()) {
+          try { await auth.signInWithEmailAndPassword(email, pass.trim()); return; } catch (e2) { err = e2; }
+        }
+        Swal.fire('تعذّر تسجيل الدخول', authErrMsg(err), 'error');
+      }
+    }
+
+    async function doRegister(email, pass, name, level, phone) {
+      if (name.split(' ').filter(Boolean).length < 4) return Swal.fire('تنبيه', 'لازم تكتب اسمك الرباعي كامل (4 أسماء على الأقل).', 'warning');
+      if (!/^01[0125]\d{8}$/.test(phone)) return Swal.fire('تنبيه', 'رقم الهاتف غير صحيح (مثال: 01012345678).', 'warning');
+      if (pass.length < 6) return Swal.fire('تنبيه', 'كلمة المرور 6 حروف على الأقل.', 'warning');
+      isRegistering = true;
+      let user = null, isNew = false, ok = false, phoneReserved = false;
+      try {
+        try { user = (await auth.createUserWithEmailAndPassword(email, pass)).user; isNew = true; }
+        catch (err) {
+          if (err.code !== 'auth/email-already-in-use') throw err;
+          /* الحساب موجود: لو الباسورد صح نكمّل بياناته الناقصة أو ندخّله */
+          let cred; try { cred = await auth.signInWithEmailAndPassword(email, pass); } catch (e2) { return Swal.fire('الإيميل مسجل قبل كده', authErrMsg(err), 'info'); }
+          user = cred.user;
+          const ex = await withTimeout(database.ref('users/' + user.uid).once('value'), 15000);
+          if (ex.exists()) { ok = true; return; }
+        }
+        const tr = await withTimeout(database.ref('phones/' + phone).transaction(cur => cur === null ? user.uid : undefined), 15000);
+        if (tr.committed) phoneReserved = true;
+        else if (tr.snapshot && tr.snapshot.val() === user.uid) phoneReserved = true;
+        else {
+          if (isNew) await user.delete().catch(() => {}); else await auth.signOut().catch(() => {});
+          user = null; return Swal.fire('خطأ', 'رقم الهاتف ده مسجل به حساب تاني بالفعل!', 'error');
+        }
+        const lvl = parseInt(level) || 1;
+        await withTimeout(database.ref().update({ ['users/' + user.uid]: { name, phone, email, level: lvl, score: 0, isBanned: false, createdAt: Date.now() }, ['leaderboard/' + user.uid]: { name, score: 0, level: lvl } }), 15000);
+        ok = true;
+      } catch (err) {
+        if (user) {
+          if (phoneReserved) await withTimeout(database.ref('phones/' + phone).transaction(cur => cur === user.uid ? null : undefined), 5000).catch(() => {});
+          if (isNew) await user.delete().catch(() => {}); else await auth.signOut().catch(() => {});
+        }
+        Swal.fire('تعذّر إنشاء الحساب', escText(authErrMsg(err)), 'error');
+      } finally { isRegistering = false; if (ok && auth.currentUser) startSession(auth.currentUser); }
+    }
+
+    function adminSendPasswordReset(email, name) {
+      if (!email) return Swal.fire('خطأ', 'الطالب ده مسجّل من غير إيميل واضح في بياناته.', 'error');
+      Swal.fire({ title: `إرسال رابط استعادة لـ ${name}؟`, text: email, showCancelButton: true, confirmButtonText: 'أيوه ابعت' }).then(result => {
+        if (!result.isConfirmed) return;
+        auth.sendPasswordResetEmail(email)
+          .then(() => { logAdminAction('إرسال رابط استعادة باسورد', `الطالب: ${name}`); Swal.fire('تم الإرسال! ✅', `اتبعت رابط استعادة الباسورد لإيميل ${email}. قوله يشوف Spam لو ملقاهوش. ولو الرابط ما اشتغلش يعمل نسخ للرابط ويستخدم "معايا رابط الاستعادة" في شاشة الدخول.`, 'success'); })
+          .catch(err => Swal.fire('خطأ', escText(err.message), 'error'));
+      });
+    }
+
+    /* تعيين الباسورد بلصق رابط الاستعادة (من غير صفحة Firebase الافتراضية) */
+    async function resetWithPastedLink() {
+      if (!FB_OK) return Swal.fire('خطأ', 'حدّث الصفحة وجرب تاني.', 'error');
+      const { value: v } = await Swal.fire({
+        title: 'تعيين كلمة مرور جديدة 🔑',
+        html: '<div style="font-size:13px; margin-bottom:8px; line-height:1.8;">من الإيميل: اضغط مطولًا على زر/رابط إعادة التعيين واختار <b>نسخ الرابط</b> (من غير ما تفتحه)، والصقه هنا.</div>' +
+              '<textarea id="rp-link" class="swal2-textarea" placeholder="الصق الرابط هنا" style="direction:ltr; font-size:12px; height:90px;"></textarea>' +
+              '<input id="rp-pass" type="password" class="swal2-input" placeholder="كلمة المرور الجديدة (6 أحرف على الأقل)" autocomplete="new-password">',
+        focusConfirm: false, showCancelButton: true, confirmButtonText: 'حفظ', cancelButtonText: 'إلغاء', showLoaderOnConfirm: true,
+        preConfirm: async () => {
+          const raw = (document.getElementById('rp-link').value || '').trim(), pw = document.getElementById('rp-pass').value;
+          const m = raw.match(/oobCode=([^&\s#]+)/i); const code = m ? decodeURIComponent(m[1]) : '';
+          if (!code) { Swal.showValidationMessage('الرابط مش صحيح. لازم يكون فيه oobCode='); return false; }
+          if (!pw || pw.length < 6) { Swal.showValidationMessage('اكتب 6 أحرف على الأقل'); return false; }
+          try { await auth.confirmPasswordReset(code, pw); return true; }
+          catch (e) { Swal.showValidationMessage(__resetErrMsg(e)); return false; }
+        }
+      });
+      if (v) Swal.fire('تم ✅', 'اتغيرت كلمة المرور. سجّل دخول بيها دلوقتي.', 'success');
+    }
+
+    async function handleForgotPassword() {
+      const email = document.getElementById('auth-email').value.trim().toLowerCase(); if (!email) return Swal.fire('تنبيه', 'اكتب الإيميل في الخانة الأول.', 'warning');
+      try { await auth.sendPasswordResetEmail(email); Swal.fire('تم!', 'لو الإيميل مسجل هيوصلك رابط إعادة التعيين (شوف الـ Spam). لو الرابط قال منتهي أو مستخدم: انسخه من غير ما تفتحه واضغط "معايا رابط الاستعادة" في شاشة الدخول.', 'success'); }
+      catch (error) { Swal.fire('خطأ', authErrMsg(error), 'error'); }
+    }
+
+    function loadStudentData(uid) {
+      if (userDataRef) userDataRef.off();
+      userDataRef = database.ref('users/' + uid);
+      userDataRef.on('value', (snap) => {
+        currentStudentData = snap.val(); checkMaintenanceUI();
+        if (currentStudentData) {
+          if (currentStudentData.isBanned) { Swal.fire('محظور!', `⚠️ تم حظرك!<br>السبب: ${escText(currentStudentData.banReason)}`, 'error'); logoutStudent(); return; }
+          document.getElementById('user-greeting').innerHTML = `👤 ${escText(currentStudentData.name)}`; setupPresence(uid, currentStudentData); syncLeaderboard(uid, currentStudentData);
+          const adminBtn = document.getElementById('admin-toggle-btn');
+          if (currentStudentData.isAdmin === true) { adminBtn.style.display = 'inline-flex'; listenToAdminLogs(); if (!adminListenersOn) { adminListenersOn = true; listenToUsersData(); listenToOnlinePresence(); } listenToAdminResearch(); } else { adminBtn.style.display = 'none'; document.getElementById('admin-panel').style.display = 'none'; }
+        }
+        renderResearchHome();
+      });
+      /* المستمعات العامة تُشغَّل مرة واحدة فقط (بدون تكرار بعد الخروج والدخول) */
+      if (!window._listenersReady) { window._listenersReady = true; listenToAlerts(); listenToSubjects(); listenToLeaderboard(); listenToResearchTopics(); __fetchFeedbackCfg(); }
+    }
+
+    function logoutStudent() {
+      if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval = null; }
+      presenceInitialized = false;
+      const done = () => { auth.signOut(); };
+      if (currentUser) {
+        ensureOnline();
+        withTimeout(Promise.all([ database.ref('users/' + currentUser.uid + '/lastSeen').set(FB.database.ServerValue.TIMESTAMP), database.ref('online_users/' + currentUser.uid).remove() ]), 4000).then(done, done);
+      } else { done(); }
+    }
+
+    function showProfile() {
+      if (!currentStudentData) return;
+      const isOnline = true;
+      const fallbackTime = currentStudentData.lastSeen || currentStudentData.createdAt;
+      const lastSeenText = isOnline ? 'متصل الآن 🟢' : formatLastSeen(fallbackTime);
+      const studentId = escText(getStudentShortId(currentUser.uid, currentStudentData.studentId));
+      const levelText = currentStudentData.level == 2 ? 'المستوى الثاني' : 'المستوى الأول';
+      document.getElementById('profile-content').innerHTML = `
+        <div class="profile-row z-content" style="border-color:var(--primary); background:rgba(59,130,246,.05);"><div class="profile-row-label">كود الطالب (ID)</div><div class="profile-row-value" style="color:var(--primary); font-family:monospace; font-size:18px;">${studentId}</div></div>
+        <div class="profile-row z-content"><div class="profile-row-label">الاسم الكامل</div><div class="profile-row-value">${escText(currentStudentData.name)}</div></div>
+        <div class="profile-row z-content"><div class="profile-row-label">المستوى الدراسي</div><div class="profile-row-value">${levelText}</div></div>
+        <div class="profile-row z-content"><div class="profile-row-label">رقم الهاتف</div><div class="profile-row-value" style="direction:ltr;">${escText(currentStudentData.phone || '-')}</div></div>
+        <div class="profile-row z-content"><div class="profile-row-label">البريد الإلكتروني</div><div class="profile-row-value" style="color:var(--primary); font-size:13px;">${escText(currentStudentData.email)}</div></div>
+        <div class="profile-row z-content"><div class="profile-row-label">حالة الاتصال</div><div class="profile-row-value" style="font-size:13px;">${lastSeenText}</div></div>
+        <div class="profile-row z-content" style="border-color:var(--gold); background:rgba(255,215,0,.05);"><div class="profile-row-label">مجموع النقاط</div><div class="profile-row-value" style="color:var(--gold);">🏆 ${currentStudentData.score || 0} نقطة</div></div>`;
+      document.getElementById('profile-overlay').style.display = 'flex';
+    }
+
+    function closeModal(e, id) { if (e && e.target.id !== id && e.target.tagName !== 'BUTTON') return; document.getElementById(id).style.display = 'none'; }
+    /* ===== إعدادات صندوق الملاحظات (إظهار/إخفاء + رقم التواصل) ===== */
+    function normalizeWaNumber(x) {
+      let d = normDigits(x).replace(/\D/g, '').replace(/^00/, '');
+      if (/^01\d{9}$/.test(d)) d = '2' + d;
+      return /^\d{10,15}$/.test(d) ? d : '';
+    }
+    function applyFeedbackCfg() {
+      const box = document.getElementById('feedback-box'); if (box) box.style.display = feedbackCfg.enabled === false ? 'none' : '';
+      const b = document.getElementById('fb-status-badge');
+      if (b) { const on = feedbackCfg.enabled !== false; b.innerHTML = on ? '🟢 الصندوق ظاهر للطلاب' : '🔴 الصندوق مخفي عن الطلاب'; b.style.color = on ? '#4ade80' : '#f87171'; }
+      const inp = document.getElementById('fb-number'); if (inp && document.activeElement !== inp) inp.value = feedbackCfg.number || ADMIN_WHATSAPP_NUMBER;
+    }
+    async function __fetchFeedbackCfg() {
+      try {
+        if (!currentUser) return;
+        const t = await currentUser.getIdToken();
+        const r = await fetch(__DB + '/settings/feedbackBox.json?auth=' + encodeURIComponent(t), { cache: 'no-store' });
+        if (r.ok) { const v = await r.json(); if (v) feedbackCfg = { enabled: v.enabled !== false, number: v.number || '' }; }
+      } catch (e) {}
+      applyFeedbackCfg();
+    }
+    function saveFeedbackSettings(enabled) {
+      const raw = document.getElementById('fb-number').value.trim();
+      const number = normalizeWaNumber(raw);
+      if (enabled && !number) return Swal.fire('رقم غير صحيح', 'اكتب رقم واتساب صحيح (مثال: 01012345678).', 'warning');
+      const cfg = { enabled: !!enabled, number: number || feedbackCfg.number || '' };
+      database.ref('settings/feedbackBox').set(cfg).then(() => {
+        feedbackCfg = cfg; applyFeedbackCfg();
+        logAdminAction('صندوق الملاحظات', (enabled ? 'إظهار' : 'إخفاء') + ' -- الرقم: ' + (cfg.number || '-'));
+        Swal.fire('تم', enabled ? 'الصندوق ظاهر للطلاب والرقم اتحفظ.' : 'الصندوق اتخفى عن الطلاب.', 'success');
+      }).catch(err => Swal.fire('خطأ', escText(err.message), 'error'));
+    }
+    function sendFeedbackToWhatsApp(e) { e.preventDefault(); const msg = document.getElementById('feedback-message').value.trim(); if (!msg) return; const text = `📌 *ملاحظة جديدة:*\n👤 *الطالب:* ${currentStudentData?.name}\n📞 *الهاتف:* ${currentStudentData?.phone}\n📝 *الملاحظة:* ${msg}`; window.open(`https://wa.me/${feedbackCfg.number || ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank'); document.getElementById('feedback-message').value = ''; }
+
+    function renderLeaderboard(board) {
+      const container = document.getElementById('leaderboard-container'); container.innerHTML = ''; let top = board.slice(0, 5);
+      if (top.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد نتائج حتى الآن.</div>'; return; }
+      container.innerHTML = top.map((s, idx) => { const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`; return `<div class="rank-row z-content"><div class="rank-num">${medal}</div><div class="rank-name">${escText(s.name)}</div><div class="rank-score">${s.score || 0} ن</div></div>`; }).join('');
+    }
+
+    function renderStudentsTable() {
+      const tbody = document.getElementById('students-table-body'); if (!tbody) return;
+      if (allUsersList.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لم يسجل أحد بعد.</td></tr>'; return; }
+      let html = '';
+      allUsersList.forEach((u, i) => {
+        const isOnline = onlineUsersMap.hasOwnProperty(u.uid); let statusHtml = '';
+        if (u.isBanned) statusHtml = `<span class="status-badge status-banned">⛔ محظور</span>`;
+        else if (isOnline) statusHtml = `<span class="status-badge status-online">🟢 متصل</span>`;
+        else { const fallbackTime = u.lastSeen || u.createdAt; statusHtml = `<span class="status-badge status-offline">⚪ آخر ظهور: ${formatLastSeen(fallbackTime)}</span>`; }
+        const banBtn = u.isBanned ? `<button class="btn-sm btn-unban" onclick="unbanStudent('${u.uid}', '${escapeHtml(u.name)}')">فك حظر</button>` : `<button class="btn-sm btn-ban" onclick="banStudent('${u.uid}', '${escapeHtml(u.name)}')">حظر</button>`;
+        const studentId = escText(getStudentShortId(u.uid, u.studentId));
+        const levelBadge = u.level == 2
+            ? `<span style="background: rgba(168,85,247,.15); color: #c084fc; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 6px;">Lvl 2</span>`
+            : `<span style="background: rgba(59,130,246,.15); color: #60a5fa; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 6px;">Lvl 1</span>`;
+        html += `<tr><td>${i+1}</td>
+        <td><div style="font-weight:bold; color:var(--fg); margin-bottom:4px; display:flex; align-items:center; flex-wrap:wrap;">${escText(u.name)} ${levelBadge}</div>${statusHtml}</td>
+        <td>
+            <div style="direction:ltr; font-size:13px; color:var(--fg-soft);">${escText(u.phone||'لا يوجد هاتف')}</div>
+            <div style="direction:ltr; font-size:11px; color:var(--primary); margin-top:4px; font-weight:bold;">${escText(u.email||'')}</div>
+            <div style="font-size:11px; color:var(--gold); font-family:monospace; margin-top:4px;">ID: ${studentId}</div>
+        </td>
+        <td><strong style="color:var(--gold); font-size:14px;">${u.score||0}</strong></td>
+        <td><div class="action-group">
+             <button class="btn-sm btn-track" onclick="trackStudent('${u.uid}')">📊 النتائج</button>
+             <button class="btn-sm btn-msg" onclick="sendPrivateAlert('${u.uid}','${escapeHtml(u.name)}')">📩 رسالة</button>
+             <button class="btn-sm btn-track" style="background: rgba(168,85,247,.15); color:#c084fc; border-color:#a855f7;" onclick="adminSendPasswordReset('${escapeHtml(u.email||'')}','${escapeHtml(u.name)}')">🔑 استعادة الباسورد</button>
+             <button class="btn-sm btn-track" style="background: rgba(255,215,0,.15); color:var(--gold); border-color:var(--gold);" onclick="adminAddPoints('${u.uid}')">⭐ نقاط</button>
+             <button class="btn-sm btn-edit" onclick="editStudentProfile('${u.uid}','${escapeHtml(u.name)}','${escapeHtml(u.phone||'')}','${escapeHtml(u.studentId||'')}')">✏️ تعديل</button>
+             ${banBtn}
+        </div></td></tr>`;
+      });
+      tbody.innerHTML = html;
+      filterAdminStudents();
+    }
+
+    async function sendPrivateAlert(uid, name) {
+      const { value: text } = await Swal.fire({ title: `إرسال تنبيه لـ ${name}`, input: 'textarea', inputPlaceholder: 'اكتب رسالتك الخاصة هنا...', showCancelButton: true, confirmButtonText: 'إرسال' });
+      if (text) { database.ref('users/' + uid + '/privateAlert').set(text); logAdminAction('إرسال رسالة خاصة', `للطالب: ${name} | النص: ${text}`); Swal.fire('تم', 'تم إرسال الرسالة وسوف تظهر للطالب فوراً', 'success'); }
+    }
+
+    function trackStudent(uid) {
+      const content = document.getElementById('tracking-content'); const student = allUsersList.find(u => u.uid === uid); if (!student) return;
+      const solvedQuizzes = student.solvedQuizzes || {}; let totalCorrect = 0; let totalAnswered = 0; let subjectsHtml = '';
+      db.forEach(subj => {
+        if (subj.quizzes && subj.quizzes.length > 0) {
+          let subjCorrect = 0; let subjAnswered = 0;
+          subj.quizzes.forEach(q => { let sq = solvedQuizzes[q.key]; if (sq) { subjAnswered++; totalAnswered++; let isCorrect = sq === true || sq.status === 'correct'; if (isCorrect) { subjCorrect++; totalCorrect++; } } });
+          let subjAccuracy = subjAnswered === 0 ? 0 : Math.round((subjCorrect / subjAnswered) * 100); let barColor = subjAccuracy >= 80 ? '#22c55e' : (subjAccuracy >= 50 ? '#f59e0b' : '#ef4444');
+          subjectsHtml += `<div class="track-subj-card"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><div style="font-weight:bold; font-size:14px; display:flex; align-items:center; gap:6px;">📖 ${escText(subj.name)}</div><div style="color:${barColor}; font-weight:900; font-size:14px;">${subjAccuracy}%</div></div><div class="track-progress-bar"><div class="track-progress-fill" style="width:${subjAccuracy}%; background:${barColor};"></div></div><div style="font-size:11px; color:var(--fg-faint); margin-top:8px; text-align:right;">${subjCorrect} إجابة صحيحة من ${subjAnswered} (من إجمالي ${subj.quizzes.length} سؤال بالمادة)</div></div>`;
+        }
+      });
+      if (subjectsHtml === '') subjectsHtml = '<div class="empty-state">لا توجد اختبارات متاحة في المواد حالياً.</div>';
+      let globalAccuracy = totalAnswered === 0 ? 0 : Math.round((totalCorrect / totalAnswered) * 100); let globalAccColor = globalAccuracy >= 80 ? '#22c55e' : (globalAccuracy >= 50 ? '#f59e0b' : '#ef4444'); let avatarChar = student.name ? escText(student.name.charAt(0)) : 'ش';
+      content.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; margin-bottom:24px; margin-top:10px;"><div class="track-avatar">${avatarChar}</div><h3 style="margin:12px 0 4px; color:var(--fg); font-size:20px;">${escText(student.name)}</h3><p style="margin:0; color:var(--fg-faint); font-size:13px; direction:ltr;">${escText(student.email)}</p></div><div class="track-stats-grid"><div class="track-stat-card"><div class="track-stat-title">إجمالي الإجابات</div><div class="track-stat-value" style="color:var(--fg);">${totalCorrect}/${totalAnswered}</div></div><div class="track-stat-card"><div class="track-stat-title">نسبة الدقة</div><div class="track-stat-value" style="color:${globalAccColor};">${globalAccuracy}%</div></div><div class="track-stat-card"><div class="track-stat-title">النقاط</div><div class="track-stat-value" style="color:var(--gold);">${student.score || 0} 🏆</div></div></div><div style="text-align:right; margin-bottom:12px; color:var(--primary); font-weight:bold; font-size:14px; display:flex; align-items:center; gap:6px;">📋 سجل النتائج حسب المادة</div><div style="display:flex; flex-direction:column;">${subjectsHtml}</div>`;
+      document.getElementById('tracking-overlay').style.display = 'flex';
+    }
+
+    async function banStudent(uid, n) {
+      const { value: r } = await Swal.fire({title: `سبب الحظر لـ ${n}`, input: 'text', showCancelButton: true, confirmButtonText: 'حظر', confirmButtonColor: '#ef4444'});
+      if (r) { database.ref('users/'+uid).update({isBanned:true, banReason:r, score:0}); database.ref('leaderboard/'+uid).remove(); logAdminAction('حظر طالب', `اسم الطالب: ${n} | السبب: ${r}`); }
+    }
+    function unbanStudent(uid, n) { Swal.fire({title: `فك الحظر عن ${n}؟`, showCancelButton: true}).then((r)=>{ if(r.isConfirmed){ database.ref('users/'+uid).update({isBanned:false, banReason:null}); logAdminAction('فك حظر طالب', `اسم الطالب: ${n}`); }}); }
+    function resetAllScores() { Swal.fire({title: "تصفير نقاط جميع الطلاب؟", icon:'warning', showCancelButton: true, confirmButtonColor: '#ef4444'}).then((r)=>{ if(r.isConfirmed) { let up={}, lb={}; allUsersList.forEach(u => { up[u.uid+'/score']=0; up[u.uid+'/solvedQuizzes']=null; up[u.uid+'/scoredQuizzes']=null; if (!u.isBanned) lb['leaderboard/'+u.uid+'/score']=0; }); database.ref('users').update(up); database.ref().update(lb); logAdminAction('تصفير الدفعة', 'تم تصفير النقاط لجميع الطلاب'); Swal.fire('تم','تم تصفير الدفعة بنجاح','success'); } }); }
+
+    function listenToAlerts() { database.ref('alert').on('value', (snap) => { let msg = snap.val(); let banner = document.getElementById("alert-banner"); if (msg) { document.getElementById("alert-text-content").innerText = msg; banner.style.display = "block"; } else banner.style.display = "none"; }); }
+
+    function clearGlobalAlert() {
+        Swal.fire({ title: 'إلغاء التنبيه؟', text: 'سيتم مسح التنبيه العاجل من شاشات جميع الطلاب فوراً.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: 'rgba(255,255,255,.1)', confirmButtonText: 'نعم، امسح التنبيه', cancelButtonText: 'تراجع' }).then((result) => {
+            if (result.isConfirmed) { database.ref('alert').remove().then(() => { logAdminAction('إلغاء التنبيه', 'تم مسح التنبيه العاجل من الموقع'); Swal.fire('تم', 'تم إخفاء التنبيه من عند جميع الطلاب بنجاح.', 'success'); }); }
+        });
+    }
+
+    function listenToSubjects() {
+      database.ref('subjects').on('value', (snap) => {
+        const val = snap.val() || {};
+        db = Object.keys(val).map(id => { const s = val[id]; return { id, level: s.level, name: s.name, desc: s.desc, images: s.images ? Object.keys(s.images).map(k=>({key:k,...s.images[k]})) : [], files: s.files ? Object.keys(s.files).map(k=>({key:k,...s.files[k]})) : [], quizzes: s.quizzes ? Object.keys(s.quizzes).map(k=>({key:k,...s.quizzes[k]})) : [] }; });
+        if (!currentSubjectId) renderHome(); else { const exist = db.find(s=>s.id===currentSubjectId); if (exist) openSubject(currentSubjectId, true); else showHome(); }
+        updateAdminSelects(); updateDashboardStats();
+      });
+    }
+
+    function switchAdminTab(tabId, btnElement) {
+      document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active'); btnElement.classList.add('active');
+      if (tabId === 'logs') listenToAdminLogs();
+    }
+
+    function toggleAdminPanel() { if (!currentStudentData || currentStudentData.isAdmin !== true) { Swal.fire('تنبيه','غير مصرح لك.','warning'); return; } const p = document.getElementById("admin-panel"); const vis = p.style.display === "block"; p.style.display = vis ? "none" : "block"; if (!vis) { updateAdminSelects(); p.scrollIntoView({behavior:'smooth'}); } }
+    function updateAlert(e) { e.preventDefault(); let text = document.getElementById("alert-input").value; database.ref('alert').set(text); e.target.reset(); logAdminAction('نشر تنبيه للدفعة', text); Swal.fire('تم', 'تم نشر التنبيه بنجاح', 'success'); }
+
+    function updateAdminSelects() {
+        const opts = db.map(s => `<option value="${escText(s.id)}">[مستوى ${s.level}] ${escText(s.name)}</option>`).join('');
+        ['file-subj-select','quiz-subj-select','ai-quiz-subj-select','img-subj-select','delete-all-quiz-subj-select'].forEach(id => { const el = document.getElementById(id); if (el) { const prev = el.value; el.innerHTML = opts; if (prev) el.value = prev; } });
+    }
+
+    function addSubject(e) { e.preventDefault(); const id = "subj-" + Date.now(); const n = document.getElementById("new-subj-name").value; database.ref('subjects/'+id).set({ level: parseInt(document.getElementById("new-subj-level").value, 10), name: n, desc: document.getElementById("new-subj-desc").value }).then(() => { e.target.reset(); logAdminAction('إضافة مادة جديدة', `المادة: ${n}`); Swal.fire('تم', "تمت إضافة المادة!", 'success'); }); }
+    function addFile(e) { e.preventDefault(); const title = document.getElementById("file-title").value; const sId = document.getElementById("file-subj-select").value; const subj = db.find(x=>x.id===sId); database.ref('subjects/'+sId+'/files').push({ title: title, link: document.getElementById("file-link").value, category: document.getElementById("file-category").value }).then(() => { e.target.reset(); logAdminAction('رفع ملف', `عنوان الملف: ${title} | المادة: ${subj?subj.name:''}`); Swal.fire('تم', "تم الرفع بنجاح!", 'success'); }); }
+
+    function addSubjectImage(e) {
+        e.preventDefault();
+        const sId = document.getElementById("img-subj-select").value; const title = document.getElementById("img-title").value; const link = document.getElementById("img-link").value; const subj = db.find(x=>x.id===sId);
+        database.ref('subjects/'+sId+'/images').push({ title: title, url: link }).then(() => { e.target.reset(); logAdminAction('رفع صورة للمادة', `الوصف: ${title} | المادة: ${subj?subj.name:''}`); Swal.fire('تم', "تمت إضافة الصورة بنجاح وستظهر للطلاب!", 'success'); });
+    }
+    function deleteSubjectImage(sId, imgKey, imgTitle) { Swal.fire({title: "حذف الصورة؟", showCancelButton: true, confirmButtonColor: '#ef4444'}).then((r)=>{ if(r.isConfirmed) { database.ref('subjects/'+sId+'/images/'+imgKey).remove(); logAdminAction('حذف صورة', `الصورة: ${imgTitle}`); }}); }
+
+    function addQuiz(e) { e.preventDefault(); const qText = document.getElementById("quiz-q").value; const sId = document.getElementById("quiz-subj-select").value; const subj = db.find(x=>x.id===sId); database.ref('subjects/'+sId+'/quizzes').push({ q: qText, opt1: document.getElementById("quiz-opt1").value, opt2: document.getElementById("quiz-opt2").value, opt3: document.getElementById("quiz-opt3").value, opt4: document.getElementById("quiz-opt4").value, ans: document.getElementById("quiz-ans").value }).then(() => { e.target.reset(); logAdminAction('إضافة سؤال MCQ', `للمادة: ${subj?subj.name:''}`); Swal.fire('تم', "تمت إضافة السؤال بنجاح!", 'success'); }); }
+
+    function addAIQuizzes(e) {
+        e.preventDefault();
+        const sId = document.getElementById("ai-quiz-subj-select").value; const jsonText = document.getElementById("ai-quiz-data").value.trim(); const subj = db.find(x=>x.id===sId);
+        if (!jsonText) return Swal.fire('تنبيه', 'برجاء لصق الكود أولاً', 'warning');
+        try {
+            const questions = JSON.parse(jsonText.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim());
+            if (!Array.isArray(questions)) throw new Error("الكود يجب أن يبدأ بـ [ وينتهي بـ ] (مصفوفة)");
+            let added = 0, skipped = 0; const up = {}; const base = database.ref('subjects/' + sId + '/quizzes');
+            questions.forEach(q => {
+                const ans = q && q.ans !== undefined ? String(q.ans).trim() : '';
+                if (q && q.q && q.opt1 && q.opt2 && q.opt3 && q.opt4 && ['1','2','3','4'].includes(ans)) { up[base.push().key] = { q: String(q.q), opt1: String(q.opt1), opt2: String(q.opt2), opt3: String(q.opt3), opt4: String(q.opt4), ans }; added++; } else skipped++;
+            });
+            if (!added) throw new Error("لا توجد أسئلة صالحة (تأكد أن ans رقم من 1 إلى 4)");
+            base.update(up).then(() => {
+                        logAdminAction('الرفع الذكي للأسئلة', `تم رفع ${added} سؤال | للمادة: ${subj?subj.name:''}`);
+            Swal.fire('تم يا بطل!', `تم إضافة ${added} سؤال بنجاح.${skipped ? ' (تم تجاهل ' + skipped + ' سؤال ناقص/غير صحيح)' : ''}`, 'success');
+            document.getElementById("ai-quiz-data").value = '';
+            });
+        } catch (error) {
+            Swal.fire({ title: 'خطأ في الكود', html: 'تأكد إنك نسخت الكود زي ما الذكاء الاصطناعي عمله بالظبط بدون أي نقص.<br><br><span style="font-size:12px; color:#ef4444;">تفاصيل الخطأ: ' + escText(error.message) + '</span>', icon: 'error' });
+        }
+    }
+
+    function deleteAllQuizzesFromSubject() {
+        const sId = document.getElementById("delete-all-quiz-subj-select").value;
+        if (!sId) return Swal.fire('تنبيه', 'يرجى اختيار المادة أولاً', 'warning');
+        const subj = db.find(x => x.id === sId);
+        Swal.fire({ title: 'هل أنت متأكد؟', text: `سيتم مسح جميع الأسئلة الخاصة بمادة "${subj ? subj.name : ''}" نهائياً ولن يمكنك استعادتها!`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: 'rgba(255,255,255,.1)', confirmButtonText: 'نعم، امسح كل الأسئلة!', cancelButtonText: 'إلغاء' }).then((result) => {
+            if (result.isConfirmed) {
+                database.ref('subjects/'+sId+'/quizzes').remove().then(() => { logAdminAction('مسح كل أسئلة المادة', `المادة: ${subj ? subj.name : ''}`); Swal.fire('تم المسح', 'تم مسح بنك الأسئلة بالكامل لهذه المادة بنجاح.', 'success'); }).catch((err) => { Swal.fire('خطأ', err.message, 'error'); });
+            }
+        });
+    }
+
+    /* ===== الأبحاث ===== */
+    function listenToResearchTopics() {
+      if (researchListening) return; researchListening = true;
+      if (currentStudentData && currentStudentData.isAdmin === true) { listenToAdminResearch(); }
+      else { __pollResearch(); }
+    }
+    function listenToAdminResearch() {
+      if (adminResearchOn) return; adminResearchOn = true;
+      database.ref('research_topics').on('value', snap => { __applyTopics(snap.val()); });
+      database.ref('research_requests').on('value', snap => {
+        const v = snap.val() || {}; researchRequests = Object.keys(v).map(k => ({ uid: k, ...v[k] })); renderAdminRequests();
+      }, err => { console.error('research_requests:', err); const b = document.getElementById('research-requests-list'); if (b) b.innerHTML = '<div style="color:#f87171; font-size:13px;">مش قادر أقرأ الطلبات: ' + escText(err.message) + ' — راجع قواعد Firebase.</div>'; });
+    }
+    /* ===== REST بدل الاتصال الحي: لا يُحسب ضمن حد الـ100 اتصال متزامن ===== */
+    var __DB = firebaseConfig.databaseURL, __pollT = null;
+    function __applyTopics(val) {
+      val = val || {};
+      researchTopics = Object.keys(val).map(k => ({ key: k, ...val[k] }));
+      researchTopics.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+      renderResearchHome(); renderAdminResearchTable(); renderMyRequest();
+    }
+    async function __fetchTopics() {
+      if (!currentUser) return;
+      try {
+        const t = await currentUser.getIdToken();
+        const r = await fetch(__DB + '/research_topics.json?auth=' + encodeURIComponent(t), { cache: 'no-store' });
+        if (r.ok) __applyTopics(await r.json());
+        await __fetchMyRequest(t);
+      } catch (e) {}
+    }
+    function __pollResearch() {
+      clearTimeout(__pollT);
+      const next = () => { __pollT = setTimeout(__pollResearch, 7000 + Math.random() * 3000); };
+      if (document.hidden || !currentUser || myResearch() || __isAdmin()) { next(); return; }
+      __fetchTopics().then(next, next);
+    }
+    async function __restClaim(id) {
+      const t = await currentUser.getIdToken(), url = __DB + '/research_topics/' + id + '/claimedBy.json?auth=' + encodeURIComponent(t);
+      const g = await fetch(url, { headers: { 'X-Firebase-ETag': 'true' }, cache: 'no-store' });
+      const etag = g.headers.get('ETag'); if (!g.ok) throw new Error('HTTP ' + g.status);
+      if (!etag) return 'fallback';
+      if ((await g.json()) !== null) return false;
+      const r = await fetch(url, { method: 'PUT', headers: { 'if-match': etag, 'Content-Type': 'application/json' }, body: JSON.stringify(currentUser.uid) });
+      if (r.status === 412) return false;
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return true;
+    }
+    /* لو فيه بيانات حجز قديمة عند الطالب (لبحث اتمسح/اتحرر)، ننضفها عشان يقدر يحجز */
+    async function __healStaleTopic() {
+      try {
+        const uid = currentUser.uid, t = encodeURIComponent(await currentUser.getIdToken());
+        const r = await fetch(__DB + '/users/' + uid + '/researchTopic.json?auth=' + t, { cache: 'no-store' });
+        if (!r.ok) return false;
+        const tid = await r.json(); if (!tid) return false;
+        const g = await fetch(__DB + '/research_topics/' + encodeURIComponent(tid) + '/claimedBy.json?auth=' + t, { cache: 'no-store' });
+        if (!g.ok) return false;
+        if ((await g.json()) === uid) return 'mine';
+        const up = {}; up['users/' + uid + '/researchTopic'] = null; up['users/' + uid + '/researchTopicName'] = null; up['users/' + uid + '/researchTopicAt'] = null;
+        await __restPatch(up);
+        if (currentStudentData) { currentStudentData.researchTopic = null; currentStudentData.researchTopicName = null; }
+        return true;
+      } catch (e) { return false; }
+    }
+    async function __restPatch(up) {
+      const t = await currentUser.getIdToken();
+      const r = await fetch(__DB + '/.json?auth=' + encodeURIComponent(t), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(up) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+    }
+
+
+    /* ===================== طلبات الأبحاث الجديدة ===================== */
+    async function __fetchMyRequest(tok) {
+      if (!currentUser || (currentStudentData && currentStudentData.isAdmin === true)) return;
+      try {
+        const t = tok || await currentUser.getIdToken();
+        const r = await fetch(__DB + '/research_requests/' + currentUser.uid + '.json?auth=' + encodeURIComponent(t), { cache: 'no-store' });
+        if (r.ok) { myRequest = await r.json(); renderMyRequest(); }
+      } catch (e) {}
+    }
+
+    function renderMyRequest() {
+      const box = document.getElementById('research-request-box'); if (!box) return;
+      const st = document.getElementById('research-request-status');
+      const btn = document.getElementById('research-request-btn');
+      const __blk = document.getElementById('research-new-blocked');
+      if (myResearch()) { box.style.display = 'none'; if (__blk) __blk.style.display = 'block'; return; }
+      if (__blk) __blk.style.display = 'none';
+      box.style.display = 'block';
+      if (myRequest && myRequest.status === 'pending') {
+        st.innerHTML = `<span style="color:#fbbf24;">⏳ طلبك "${escText(myRequest.title)}" مستني موافقة الإدارة</span> <button class="btn-sm btn-ban" style="margin-right:8px;" onclick="cancelResearchRequest()">إلغاء الطلب</button>`;
+        btn.style.display = 'none';
+      } else if (myRequest && myRequest.status === 'rejected') {
+        st.innerHTML = `<span style="color:#f87171;">❌ الإدارة رفضت طلب "${escText(myRequest.title)}"${myRequest.reason ? ' — السبب: ' + escText(myRequest.reason) : ''}. تقدر تطلب بحث تاني أو تحجز من القائمة.</span>`;
+        btn.style.display = '';
+      } else { st.innerHTML = ''; btn.style.display = ''; }
+    }
+
+    function requestNewResearch() {
+      if (!currentUser || !currentStudentData) return Swal.fire('', 'لازم تسجل دخول الأول.', 'warning');
+      if (myResearch()) return Swal.fire('عندك بحث', 'إنت حاجز بحث بالفعل، الغي الحجز الأول لو عايز تطلب غيره.', 'warning');
+      if (myRequest && myRequest.status === 'pending') return Swal.fire('', 'عندك طلب لسه مستني الرد.', 'info');
+      Swal.fire({
+        title: 'اطلب بحث جديد',
+        text: 'اكتب عنوان البحث اللي عايزه، ولو الإدارة وافقت هيتحجزلك.',
+        input: 'text', inputPlaceholder: 'عنوان البحث', showCancelButton: true,
+        confirmButtonText: 'إرسال الطلب', cancelButtonText: 'إلغاء',
+        inputValidator: v => { v = (v || '').trim(); if (v.length < 5) return 'العنوان قصير جدًا'; if (v.length > 150) return 'العنوان طويل جدًا (150 حرف حد أقصى)'; }
+      }).then(async res => {
+        if (!res.isConfirmed) return;
+        const title = res.value.trim();
+        const dup = researchTopics.find(r => normName(r.name) === normName(title));
+        if (dup) return Swal.fire('البحث موجود', dup.claimedBy ? 'البحث ده موجود في القائمة لكنه محجوز لطالب تاني.' : 'البحث ده موجود في القائمة وفاضي، احجزه مباشرة.', 'info');
+        try {
+          const t = await currentUser.getIdToken();
+          const body = { uid: currentUser.uid, name: currentStudentData.name || '', title, status: 'pending', createdAt: Date.now() };
+          const r = await fetch(__DB + '/research_requests/' + currentUser.uid + '.json?auth=' + encodeURIComponent(t), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          myRequest = body; renderMyRequest();
+          Swal.fire('تم الإرسال ✅', 'طلبك وصل للإدارة، هتلاقي الرد هنا.', 'success');
+        } catch (err) { Swal.fire('خطأ', escText(err.message), 'error'); }
+      });
+    }
+
+    async function cancelResearchRequest() {
+      if (!currentUser) return;
+      try {
+        const t = await currentUser.getIdToken();
+        const r = await fetch(__DB + '/research_requests/' + currentUser.uid + '.json?auth=' + encodeURIComponent(t), { method: 'DELETE' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        myRequest = null; renderMyRequest();
+      } catch (err) { Swal.fire('خطأ', escText(err.message), 'error'); }
+    }
+
+    /* ----- الأدمن ----- */
+    function renderAdminRequests() {
+      const box = document.getElementById('research-requests-list'); if (!box) return;
+      const pending = researchRequests.filter(r => r.status === 'pending').sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      const cnt = document.getElementById('research-req-count'); if (cnt) { cnt.textContent = pending.length; cnt.className = 'status-badge ' + (pending.length ? 'status-online' : 'status-offline'); }
+      if (!pending.length) { box.innerHTML = '<div style="text-align:center; color:var(--fg-faint); font-size:13px;">مفيش طلبات جديدة</div>'; return; }
+      box.innerHTML = pending.map(r => `<div class="profile-row" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; margin-bottom:8px; border-radius:10px; background:rgba(255,255,255,.04);">
+        <div style="min-width:200px; flex:1;"><div style="font-weight:bold; word-break:break-word;">${escText(r.title)}</div><div style="font-size:12px; color:var(--fg-faint);">الطالب: ${escText(r.name || 'غير معروف')}</div></div>
+        <div class="action-group"><button class="btn-sm btn-msg" onclick="approveResearchRequest('${r.uid}')">✅ موافقة وحجز</button><button class="btn-sm btn-ban" onclick="rejectResearchRequest('${r.uid}')">❌ رفض</button></div></div>`).join('');
+    }
+
+    function approveResearchRequest(uid) {
+      const req = researchRequests.find(r => r.uid === uid); if (!req) return;
+      const u = allUsersList.find(x => x.uid === uid);
+      if (u && u.researchTopic) return Swal.fire('مش ممكن', 'الطالب ده حاجز بحث تاني بالفعل. ارفض الطلب أو حرّر حجزه الأول.', 'warning');
+      Swal.fire({ title: 'الموافقة على الطلب؟', text: `"${req.title}" — هيتضاف للقائمة ويتحجز للطالب ${req.name || ''}.`, icon: 'question', showCancelButton: true, confirmButtonText: 'موافقة', cancelButtonText: 'إلغاء' }).then(res => {
+        if (!res.isConfirmed) return;
+        const ex = researchTopics.find(r => normName(r.name) === normName(req.title));
+        if (ex && ex.claimedBy) return Swal.fire('بحث مكرر', 'فيه بحث بنفس الاسم محجوز لطالب تاني. ارفض الطلب.', 'warning');
+        const id = ex ? ex.key : database.ref('research_topics').push().key, up = {};
+        if (ex) { up['research_topics/' + id + '/claimedBy'] = uid; up['research_topics/' + id + '/claimedByName'] = req.name || ''; up['research_topics/' + id + '/claimedAt'] = { '.sv': 'timestamp' }; }
+        else up['research_topics/' + id] = { name: req.title, claimedBy: uid, claimedByName: req.name || '', claimedAt: { '.sv': 'timestamp' } };
+        up['users/' + uid + '/researchTopic'] = id; up['users/' + uid + '/researchTopicName'] = req.title; up['users/' + uid + '/researchTopicAt'] = { '.sv': 'timestamp' };
+        up['research_requests/' + uid] = null;
+        database.ref().update(up).then(() => { logAdminAction('موافقة على طلب بحث', `${req.title} — ${req.name || uid}`); Swal.fire('تمت الموافقة ✅', 'البحث اتضاف واتحجز للطالب.', 'success'); })
+          .catch(err => Swal.fire('خطأ', escText(err.message), 'error'));
+      });
+    }
+
+    function rejectResearchRequest(uid) {
+      const req = researchRequests.find(r => r.uid === uid); if (!req) return;
+      Swal.fire({ title: 'رفض الطلب', text: `"${req.title}"`, input: 'text', inputPlaceholder: 'سبب الرفض (اختياري)', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'رفض', cancelButtonText: 'إلغاء' }).then(res => {
+        if (!res.isConfirmed) return;
+        const reason = (res.value || '').trim().slice(0, 200);
+        database.ref('research_requests/' + uid).update({ status: 'rejected', reason }).then(() => { logAdminAction('رفض طلب بحث', `${req.title} — ${req.name || uid}`); Swal.fire('تم', 'تم رفض الطلب.', 'success'); })
+          .catch(err => Swal.fire('خطأ', escText(err.message), 'error'));
+      });
+    }
+
+    function myResearch() { if (!currentStudentData) return null; return (currentStudentData.researchTopic && researchTopics.find(r => r.key === currentStudentData.researchTopic)) || (currentUser && researchTopics.find(r => r.claimedBy === currentUser.uid)) || null; }
+
+    function renderResearchHome(searchQuery = '') {
+      const grid = document.getElementById('research-grid'); if (!grid) return;
+      const statusEl = document.getElementById('my-research-status');
+      const mine = myResearch();
+      if (statusEl) {
+        statusEl.innerHTML = mine
+          ? `<span style="color:#4ade80;">✅ بحثك: ${escText(mine.name)}</span> <button class="btn-sm btn-ban" style="margin-right:8px;" onclick="cancelMyResearch('${mine.key}')">إلغاء الحجز</button>`
+          : `<span style="color:var(--fg-faint);">لسة مخترتش بحث</span>`;
+      }
+      let list = researchTopics;
+      if (searchQuery) list = list.filter(r => (r.name || '').toLowerCase().includes(searchQuery));
+      if (list.length === 0) { grid.innerHTML = `<div class="empty-state z-content" style="grid-column:1/-1;">${researchTopics.length === 0 ? 'لا توجد أبحاث متاحة حاليًا.' : 'لا توجد نتائج مطابقة.'}</div>`; return; }
+      grid.innerHTML = list.map(r => {
+        const taken = !!r.claimedBy; const isMine = currentUser && r.claimedBy === currentUser.uid;
+        let btn;
+        if (isMine) btn = `<button class="pill" style="width:100%; background: rgba(34,197,94,.2); color:#4ade80; border:1px solid #22c55e; cursor:default;">✅ بحثك</button>`;
+        else if (taken) btn = `<button class="pill" style="width:100%; background: rgba(255,255,255,.06); color: var(--fg-faint); cursor:not-allowed;" disabled>محجوز</button>`;
+        else btn = `<button class="pill" style="width:100%; background:#14b8a6;" onclick="claimResearch('${r.key}','${escapeHtml(r.name)}')">احجز البحث ده</button>`;
+        return `<div class="card liquid-glass" style="padding:14px 16px; border-color:${isMine ? '#22c55e' : (taken ? 'rgba(255,255,255,.06)' : '#14b8a6')};"><h4 class="z-content" style="margin:0 0 10px; font-size:14px; word-break:break-word;">${escText(r.name)}</h4>${btn}</div>`;
+      }).join('');
+    }
+
+    function filterResearch() { clearTimeout(researchSearchTimeout); researchSearchTimeout = setTimeout(() => { renderResearchHome(document.getElementById('research-search').value.toLowerCase()); }, 300); }
+
+    function claimResearch(id, name) {
+      if (!currentUser || !currentStudentData) return Swal.fire('تنبيه', 'سجّل دخول الأول.', 'warning');
+      const existing = myResearch();
+      if (existing) return Swal.fire('عندك بحث بالفعل', `انت حاجز بحث \"${existing.name}\" بالفعل، لازم تلغيه الأول لو عايز تغيّره.`, 'warning');
+      Swal.fire({ title: `تأكيد حجز \"${name}\"؟`, text: 'مش هتقدر تحجز بحث تاني إلا لو لغيت الحجز ده.', icon: 'question', showCancelButton: true, confirmButtonText: 'أيوه احجزه', cancelButtonText: 'تراجع' }).then(async result => {
+        if (!result.isConfirmed) return;
+        try {
+          const uid = currentUser.uid, up = {};
+          up['research_topics/' + id + '/claimedBy'] = uid; up['research_topics/' + id + '/claimedByName'] = currentStudentData.name; up['research_topics/' + id + '/claimedAt'] = { '.sv': 'timestamp' };
+          up['users/' + uid + '/researchTopic'] = id; up['users/' + uid + '/researchTopicName'] = name; up['users/' + uid + '/researchTopicAt'] = { '.sv': 'timestamp' };
+          const send = async () => fetch(__DB + '/.json?auth=' + encodeURIComponent(await currentUser.getIdToken()), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(up) });
+          let resp = await send();
+          if (!resp.ok && (resp.status === 401 || resp.status === 403)) {
+            await __fetchTopics();
+            const cur0 = researchTopics.find(x => x.key === id);
+            if (cur0 && cur0.claimedBy && cur0.claimedBy !== uid) { Swal.fire('للأسف اتأخرت!', 'حد تاني حجز البحث ده قبلك بلحظة.', 'error'); return; }
+            const heal = await __healStaleTopic();
+            if (heal === 'mine') { Swal.fire('عندك بحث بالفعل', 'انت حاجز بحث قبل كده. لازم تلغيه الأول لو عايز تغيّره.', 'warning'); __fetchTopics(); return; }
+            if (heal === true) resp = await send();
+          }
+          if (!resp.ok) {
+            await __fetchTopics();
+            const cur = researchTopics.find(x => x.key === id);
+            if (cur && cur.claimedBy && cur.claimedBy !== uid) { Swal.fire('للأسف اتأخرت!', 'حد تاني حجز البحث ده قبلك بلحظة.', 'error'); return; }
+            if (resp.status === 401 || resp.status === 403) { Swal.fire('تعذّر الحجز', 'الحجز اترفض من الصلاحيات (Rules) - كود ' + resp.status + '. ابعت الرسالة دي للأدمن.', 'error'); return; }
+            throw new Error('HTTP ' + resp.status);
+          }
+          currentStudentData.researchTopic = id; currentStudentData.researchTopicName = name;
+          const tp = researchTopics.find(r => r.key === id); if (tp) { tp.claimedBy = currentUser.uid; tp.claimedByName = currentStudentData.name; }
+          renderResearchHome();
+          Swal.fire('تم الحجز! 🎉', `اتسجل بحث \"${name}\" باسمك.`, 'success');
+        } catch (err) { Swal.fire('خطأ', escText(err.message), 'error'); }
+      });
+    }
+
+    function cancelMyResearch(id) {
+      if (!currentUser) return;
+      Swal.fire({ title: 'إلغاء حجز البحث؟', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'نعم، إلغاء' }).then(async result => {
+        if (!result.isConfirmed) return;
+        const up = {}; up['research_topics/' + id + '/claimedBy'] = null; up['research_topics/' + id + '/claimedByName'] = null; up['research_topics/' + id + '/claimedAt'] = null;
+        up['users/' + currentUser.uid + '/researchTopic'] = null; up['users/' + currentUser.uid + '/researchTopicName'] = null; up['users/' + currentUser.uid + '/researchTopicAt'] = null;
+        try {
+          await __restPatch(up);
+          currentStudentData.researchTopic = null; currentStudentData.researchTopicName = null;
+          const tp = researchTopics.find(r => r.key === id); if (tp) { tp.claimedBy = null; tp.claimedByName = null; }
+          renderResearchHome(); __fetchTopics();
+          Swal.fire('تم', 'اتلغى حجزك، البحث بقى متاح تاني.', 'success');
+        } catch (err) { Swal.fire('خطأ', escText(err.message), 'error'); }
+      });
+    }
+
+    function fixResearchConflict(key) {
+      const r = researchTopics.find(x => x.key === key); if (!r) return;
+      const bad = allUsersList.filter(u => u.researchTopic === key && u.uid !== r.claimedBy);
+      if (!bad.length) return Swal.fire('لا يوجد تعارض', '', 'info');
+      Swal.fire({ title: 'إصلاح التعارض؟', html: 'صاحب الحجز الفعلي: <b>' + escText(r.claimedByName || '—') + '</b><br>هيتم مسح الحجز القديم من: <b>' + bad.map(u => escText(u.name || u.uid)).join('، ') + '</b>', icon: 'question', showCancelButton: true, confirmButtonText: 'أيوه، صلّح', cancelButtonText: 'تراجع' }).then(res => {
+        if (!res.isConfirmed) return;
+        const up = {}; bad.forEach(u => { up['users/' + u.uid + '/researchTopic'] = null; up['users/' + u.uid + '/researchTopicName'] = null; up['users/' + u.uid + '/researchTopicAt'] = null; });
+        database.ref().update(up).then(() => { logAdminAction('إصلاح تعارض حجز', r.name + ' -- ' + bad.map(u => u.name || u.uid).join(', ')); Swal.fire('تم', 'اتصلح التعارض.', 'success'); }).catch(err => Swal.fire('خطأ', escText(err.message), 'error'));
+      });
+    }
+    function normName(x) { return String(x || '').toLowerCase().replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/[^\u0621-\u064A0-9a-z]+/g, ''); }
+    function addResearchTopic(e) {
+      e.preventDefault(); const name = document.getElementById('single-research-name').value.trim(); if (!name) return;
+      if (researchTopics.some(r => normName(r.name) === normName(name))) return Swal.fire('بحث مكرر', 'فيه بحث بنفس الاسم موجود بالفعل.', 'warning');
+      database.ref('research_topics').push({ name, claimedBy: null }).then(() => { e.target.reset(); logAdminAction('إضافة بحث', `البحث: ${name}`); Swal.fire('تم', 'تمت إضافة البحث.', 'success'); });
+    }
+
+    function addBulkResearchTopics(e) {
+      e.preventDefault();
+      const lines = document.getElementById('bulk-research-data').value.split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return Swal.fire('تنبيه', 'اكتب اسم بحث واحد على الأقل.', 'warning');
+      const seen = new Set(researchTopics.map(r => normName(r.name))); let skipped = 0;
+      const up = {}; const base = database.ref('research_topics');
+      lines.forEach(name => { const k = normName(name); if (!k || seen.has(k)) { skipped++; return; } seen.add(k); up[base.push().key] = { name, claimedBy: null }; });
+      if (!Object.keys(up).length) return Swal.fire('بحث مكرر', 'كل الأبحاث دي موجودة بالفعل.', 'info');
+      base.update(up).then(() => { if (skipped) Swal.fire('تم', 'اتضاف ' + Object.keys(up).length + ' بحث، وتم تخطي ' + skipped + ' مكرر.', 'success'); logAdminAction('إضافة أبحاث بالجملة', `عدد ${lines.length} بحث`); Swal.fire('تم يا بطل!', `تمت إضافة ${lines.length} بحث بنجاح.`, 'success'); document.getElementById('bulk-research-data').value = ''; });
+    }
+
+    function adminFreeResearch(id, name) {
+      Swal.fire({ title: `إلغاء حجز "${name}"؟`, text: 'هيبقى متاح لأي طالب تاني يحجزه.', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'نعم، إلغاء الحجز' }).then(result => {
+        if (!result.isConfirmed) return;
+        const topic = researchTopics.find(r => r.key === id); const uid = topic ? topic.claimedBy : null;
+        const up = {}; up['research_topics/' + id + '/claimedBy'] = null; up['research_topics/' + id + '/claimedByName'] = null; up['research_topics/' + id + '/claimedAt'] = null;
+        if (uid) { up['users/' + uid + '/researchTopic'] = null; up['users/' + uid + '/researchTopicName'] = null; up['users/' + uid + '/researchTopicAt'] = null; }
+        database.ref().update(up).then(() => { logAdminAction('إلغاء حجز بحث', `البحث: ${name}`); Swal.fire('تم', 'اتلغى الحجز.', 'success'); });
+      });
+    }
+
+    function adminDeleteResearchTopic(id, name) {
+      Swal.fire({ title: `حذف بحث "${name}" نهائيًا؟`, showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'نعم، احذف' }).then(result => {
+        if (!result.isConfirmed) return;
+        const topic = researchTopics.find(r => r.key === id); const uid = topic ? topic.claimedBy : null;
+        const up = {}; up['research_topics/' + id] = null; if (uid) { up['users/' + uid + '/researchTopic'] = null; up['users/' + uid + '/researchTopicName'] = null; up['users/' + uid + '/researchTopicAt'] = null; }
+        database.ref().update(up).then(() => { logAdminAction('حذف بحث', `البحث: ${name}`); Swal.fire('تم الحذف', '', 'success'); });
+      });
+    }
+
+    function renderAdminResearchTable() {
+      const tbody = document.getElementById('research-table-body'); if (!tbody) return;
+      if (researchTopics.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد أبحاث مضافة بعد.</td></tr>'; return; }
+      const __cnt = {}; researchTopics.forEach(r => { const k = normName(r.name); __cnt[k] = (__cnt[k] || 0) + 1; });
+      /* المحجوز يطلع فوق (الأقدم حجزًا الأول)، وبعده المتاح بالترتيب الأبجدي */
+      const __claimTime = r => { if (typeof r.claimedAt === 'number') return r.claimedAt; const u = allUsersList.find(x => x.researchTopic === r.key); return (u && typeof u.researchTopicAt === 'number') ? u.researchTopicAt : Number.MAX_SAFE_INTEGER; };
+      const __sorted = researchTopics.slice().sort((a, b) => { const ta = !!a.claimedBy, tb = !!b.claimedBy; if (ta !== tb) return ta ? -1 : 1; if (ta) return __claimTime(a) - __claimTime(b); return 0; });
+      tbody.innerHTML = __sorted.map((r, i) => {
+        const taken = !!r.claimedBy;
+        const holders = allUsersList.filter(u => u.researchTopic === r.key);
+        const conflict = holders.length > 1 || (r.claimedBy && holders.length === 1 && holders[0].uid !== r.claimedBy);
+        const conflictTag = conflict ? ' <span class="status-badge" style="background:#dc2626;color:#fff;">⚠ تعارض في الحجز: ' + holders.map(u => escText(u.name || '?')).join(' + ') + '</span> <button class="btn-sm btn-msg" onclick="fixResearchConflict(\'' + r.key + '\')">إصلاح التعارض</button>' : '';
+        const dupTag = __cnt[normName(r.name)] > 1 ? ' <span class="status-badge status-banned" style="background:#ef4444;color:#fff;">مكرر</span>' : '';
+        const statusHtml = taken ? `<span class="status-badge status-online">🟢 محجوز</span>` : `<span class="status-badge status-offline">⚪ متاح</span>`;
+        const studentHtml = taken ? escText(r.claimedByName || 'غير معروف') : '<span style="color:var(--fg-faint);">-</span>';
+        const actions = `<div class="action-group">${taken ? `<button class="btn-sm btn-msg" onclick="adminFreeResearch('${r.key}','${escapeHtml(r.name)}')">🔓 إلغاء الحجز</button>` : ''}<button class="btn-sm btn-ban" onclick="adminDeleteResearchTopic('${r.key}','${escapeHtml(r.name)}')">🗑️ حذف</button></div>`;
+        return `<tr${taken ? ' style="background:rgba(34,197,94,.10); box-shadow: inset -4px 0 0 #22c55e;"' : ''}><td>${i + 1}</td><td>${escText(r.name)}${dupTag}${conflictTag}</td><td>${statusHtml}</td><td>${studentHtml}</td><td>${actions}</td></tr>`;
+      }).join('');
+      filterAdminResearch();
+    }
+
+    function filterAdminResearch() {
+      const el = document.getElementById('admin-search-research'); if (!el) return; const query = el.value.toLowerCase();
+      document.querySelectorAll('#research-table-body tr').forEach(row => { if (row.cells.length > 1) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
+    }
+
+    function __loadScript(src) {
+      return new Promise((res, rej) => {
+        if (document.querySelector('script[data-x="' + src + '"]')) return res();
+        const el = document.createElement('script'); el.src = src; el.dataset.x = src; el.onload = res; el.onerror = () => rej(new Error('load'));
+        document.head.appendChild(el);
+      });
+    }
+    function __fmtTime(ms) {
+      if (!ms) return '';
+      const p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(ms));
+      return p.replace(',', '') + '.' + String(ms % 1000).padStart(3, '0');
+    }
+    async function exportResearchCSV() {
+      try { if (typeof ExcelJS === 'undefined') await __loadScript('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js'); }
+      catch (e) { return Swal.fire('خطأ', 'مكتبة Excel مقدرتش تتحمّل. اتأكد من النت وجرّب تاني.', 'error'); }
+      const usersBy = {}; allUsersList.forEach(u => { usersBy[u.uid] = u; });
+      const nameCnt = {}; researchTopics.forEach(r => { const k = normName(r.name); nameCnt[k] = (nameCnt[k] || 0) + 1; });
+      const info = researchTopics.map(r => {
+        const holders = allUsersList.filter(u => u.researchTopic === r.key);
+        const conflict = holders.length > 1 || (!!r.claimedBy && holders.length === 1 && holders[0].uid !== r.claimedBy);
+        return { r, holders, conflict, dup: nameCnt[normName(r.name)] > 1 };
+      }).sort((x, y) => (y.conflict - x.conflict) || ((!!y.r.claimedBy) - (!!x.r.claimedBy)) || (x.r.name || '').localeCompare(y.r.name || '', 'ar'));
+      const total = info.length, taken = info.filter(i => i.r.claimedBy).length, conflicts = info.filter(i => i.conflict).length;
+
+      const C = { teal: 'FF0F766E', tealD: 'FF115E59', tealL: 'FFF0FDFA', line: 'FFCBD5E1', green: 'FFDCFCE7', greenT: 'FF166534', gray: 'FFF1F5F9', grayT: 'FF64748B', red: 'FFFEE2E2', redD: 'FFDC2626', redT: 'FF991B1B', amber: 'FFFEF3C7', amberT: 'FF92400E' };
+      const fill = argb => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } });
+      const border = { top: { style: 'thin', color: { argb: C.line } }, left: { style: 'thin', color: { argb: C.line } }, bottom: { style: 'thin', color: { argb: C.line } }, right: { style: 'thin', color: { argb: C.line } } };
+      const mid = { vertical: 'middle', horizontal: 'center', wrapText: true, readingOrder: 'rtl' };
+      const wb = new ExcelJS.Workbook(); wb.creator = 'منصة الدفعة'; wb.created = new Date();
+      const now = __fmtTime(Date.now()).slice(0, 19);
+
+      /* ===== الشيت الأول: الأبحاث ===== */
+      const ws = wb.addWorksheet('الأبحاث', { views: [{ rightToLeft: true, state: 'frozen', ySplit: 4 }], properties: { tabColor: { argb: C.teal } } });
+      ws.columns = [{ width: 6 }, { width: 44 }, { width: 13 }, { width: 28 }, { width: 16 }, { width: 32 }, { width: 27 }, { width: 22 }];
+      ws.mergeCells('A1:H1'); Object.assign(ws.getCell('A1'), { value: '🔬 تقرير حجز الأبحاث', fill: fill(C.teal), font: { size: 20, bold: true, color: { argb: 'FFFFFFFF' } }, alignment: mid }); ws.getRow(1).height = 40;
+      ws.mergeCells('A2:H2'); Object.assign(ws.getCell('A2'), { value: 'تاريخ التقرير (بتوقيت القاهرة): ' + now, fill: fill(C.tealL), font: { size: 11, color: { argb: C.tealD } }, alignment: mid }); ws.getRow(2).height = 22;
+      ws.mergeCells('A3:H3'); Object.assign(ws.getCell('A3'), { value: `إجمالي الأبحاث: ${total}    |    محجوز: ${taken}    |    متاح: ${total - taken}    |    تعارضات: ${conflicts}`, fill: fill(conflicts ? C.red : C.green), font: { size: 13, bold: true, color: { argb: conflicts ? C.redT : C.greenT } }, alignment: mid }); ws.getRow(3).height = 28;
+      const head = ws.getRow(4); head.values = ['#', 'عنوان البحث', 'الحالة', 'اسم الطالب', 'التليفون', 'الإيميل', 'وقت الحجز (القاهرة)', 'ملاحظات'];
+      head.height = 30; head.eachCell(c => { c.fill = fill(C.tealD); c.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } }; c.alignment = mid; c.border = border; });
+      info.forEach((it, i) => {
+        const r = it.r, u = r.claimedBy ? usersBy[r.claimedBy] : null;
+        const note = it.conflict ? '⚠ تعارض في الحجز (شوف شيت التعارضات)' : (it.dup ? '⚠ اسم بحث مكرر' : '');
+        const row = ws.addRow([i + 1, r.name || '', r.claimedBy ? 'محجوز ✔' : 'متاح', r.claimedByName || (u && u.name) || '', u ? (u.phone || '') : '', u ? (u.email || '') : '', __fmtTime(r.claimedAt), note]);
+        row.height = 26;
+        const base = it.conflict ? C.red : (i % 2 ? C.tealL : 'FFFFFFFF');
+        row.eachCell(c => { c.fill = fill(base); c.border = border; c.alignment = mid; c.font = { size: 11 }; });
+        row.getCell(2).alignment = { ...mid, horizontal: 'right' };
+        const st = row.getCell(3); st.font = { bold: true, size: 11, color: { argb: r.claimedBy ? C.greenT : C.grayT } }; st.fill = fill(r.claimedBy ? C.green : C.gray);
+        if (note) { const n = row.getCell(8); n.fill = fill(it.conflict ? C.redD : C.amber); n.font = { bold: true, color: { argb: it.conflict ? 'FFFFFFFF' : C.amberT } }; }
+      });
+      ws.autoFilter = { from: 'A4', to: 'H' + (4 + total) };
+      ws.pageSetup = { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+      /* ===== الشيت الثاني: التعارضات ===== */
+      const wc = wb.addWorksheet('التعارضات', { views: [{ rightToLeft: true, state: 'frozen', ySplit: 3 }], properties: { tabColor: { argb: conflicts ? C.redD : 'FF16A34A' } } });
+      wc.columns = [{ width: 40 }, { width: 14 }, { width: 28 }, { width: 28 }, { width: 30 }, { width: 16 }, { width: 30 }];
+      wc.mergeCells('A1:G1'); Object.assign(wc.getCell('A1'), { value: '⚠ تقرير التعارضات في الحجز', fill: fill(conflicts ? 'FFB91C1C' : 'FF16A34A'), font: { size: 18, bold: true, color: { argb: 'FFFFFFFF' } }, alignment: mid }); wc.getRow(1).height = 38;
+      wc.mergeCells('A2:G2'); Object.assign(wc.getCell('A2'), { value: 'الترتيب حسب وقت الحجز الفعلي (بتوقيت القاهرة وبالملي ثانية). «الأول» = اللي حجز الأسبق. الحجز الحالي = اللي محفوظ في جدول الأبحاث.', fill: fill(C.amber), font: { size: 11, color: { argb: C.amberT } }, alignment: mid }); wc.getRow(2).height = 34;
+      const h2 = wc.getRow(3); h2.values = ['عنوان البحث', 'الترتيب', 'اسم الطالب', 'وقت الحجز (القاهرة)', 'الوضع', 'التليفون', 'الإيميل'];
+      h2.height = 28; h2.eachCell(c => { c.fill = fill(C.tealD); c.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } }; c.alignment = mid; c.border = border; });
+      const ord = ['🥇 الأول', '🥈 التاني', '🥉 التالت', 'الرابع', 'الخامس', 'السادس'];
+      const cons = info.filter(i => i.conflict);
+      if (!cons.length) {
+        wc.mergeCells('A4:G4'); Object.assign(wc.getCell('A4'), { value: '✅ لا توجد تعارضات في الحجز', fill: fill(C.green), font: { size: 15, bold: true, color: { argb: C.greenT } }, alignment: mid }); wc.getRow(4).height = 40;
+      }
+      cons.forEach(it => {
+        const r = it.r;
+        const list = it.holders.map(u => ({ u, t: u.researchTopicAt || (u.uid === r.claimedBy ? r.claimedAt : 0) || 0 }));
+        if (r.claimedBy && !list.some(x => x.u.uid === r.claimedBy)) { const cu = usersBy[r.claimedBy] || { uid: r.claimedBy, name: r.claimedByName }; list.push({ u: cu, t: r.claimedAt || 0 }); }
+        list.sort((a, b) => (a.t || Infinity) - (b.t || Infinity));
+        const start = wc.rowCount + 1;
+        list.forEach((x, k) => {
+          const owner = x.u.uid === r.claimedBy;
+          const row = wc.addRow([r.name || '', x.t ? ord[k] || String(k + 1) : 'غير معروف', x.u.name || x.u.uid, x.t ? __fmtTime(x.t) : 'حجز قديم بدون وقت', owner ? 'صاحب الحجز الحالي ✔' : 'حجز متعارض ✖ (محتاج إصلاح)', x.u.phone || '', x.u.email || '']);
+          row.height = 28;
+          row.eachCell(c => { c.fill = fill(owner ? C.green : C.red); c.border = border; c.alignment = mid; c.font = { size: 11 }; });
+          row.getCell(5).font = { bold: true, color: { argb: owner ? C.greenT : C.redT } };
+          if (k === 0 && x.t) row.getCell(2).font = { bold: true, size: 12, color: { argb: 'FFB45309' } };
+        });
+        const end = wc.rowCount;
+        if (end > start) wc.mergeCells('A' + start + ':A' + end);
+        Object.assign(wc.getCell('A' + start), { alignment: { ...mid, horizontal: 'right' }, font: { bold: true, size: 12 } });
+      });
+
+      const buf = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'أبحاث_الدفعة_' + now.slice(0, 10).replace(/\//g, '-') + '.xlsx';
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+      logAdminAction('تصدير الأبحاث', 'تصدير جدول الأبحاث إلى Excel');
+    }
+
+    function deleteFile(s, f, fName) { Swal.fire({title: "حذف الملف؟", showCancelButton: true, confirmButtonColor: '#ef4444'}).then((r)=>{ if(r.isConfirmed) { database.ref('subjects/'+s+'/files/'+f).remove(); logAdminAction('حذف ملف', `الملف: ${fName}`); }}); }
+    function deleteQuiz(s, q, qName) { Swal.fire({title: "حذف السؤال؟", showCancelButton: true, confirmButtonColor: '#ef4444'}).then((r)=>{ if(r.isConfirmed) { database.ref('subjects/'+s+'/quizzes/'+q).remove(); logAdminAction('حذف سؤال', `السؤال: ${qName}`); }}); }
+    function deleteSubject(s, n) { Swal.fire({title: `حذف المادة ${n} نهائياً؟`, icon:'warning', showCancelButton: true, confirmButtonColor: '#ef4444'}).then((r)=>{ if(r.isConfirmed) { database.ref('subjects/'+s).remove().then(()=>{ logAdminAction('حذف مادة', `المادة: ${n}`); if(currentSubjectId===s) showHome(); }); }}); }
+
+    function showHome(noScroll) { document.getElementById('view-home').style.display = 'block'; document.getElementById('view-subject').style.display = 'none'; document.getElementById('view-research').style.display = 'none'; document.getElementById('search-box').value = ''; currentSubjectId = null; renderHome(); updateAdminSelects(); if (!noScroll) window.scrollTo({ top: document.getElementById('main-site').offsetTop, behavior: 'smooth' }); }
+    function showResearch(tab) {
+      document.getElementById('view-home').style.display = 'none';
+      document.getElementById('view-subject').style.display = 'none';
+      document.getElementById('view-research').style.display = 'block';
+      currentSubjectId = null;
+      switchResearchTab(tab || 'pick');
+      renderResearchHome(); renderMyRequest();
+      window.scrollTo({ top: document.getElementById('main-site').offsetTop, behavior: 'smooth' });
+    }
+    function switchResearchTab(tab) {
+      const pick = tab !== 'new';
+      document.getElementById('tab-res-pick').classList.toggle('active', pick);
+      document.getElementById('tab-res-new').classList.toggle('active', !pick);
+      document.getElementById('research-pane-pick').style.display = pick ? 'block' : 'none';
+      document.getElementById('research-pane-new').style.display = pick ? 'none' : 'block';
+    }
+    function switchLevel(lvl) { activeLevel = lvl; document.getElementById('tab-lvl-1').classList.toggle('active', lvl===1); document.getElementById('tab-lvl-2').classList.toggle('active', lvl===2); document.getElementById('current-level-heading').innerText = lvl===1 ? "مواد المستوى الأول" : "مواد المستوى الثاني"; document.getElementById('search-box').value = ''; renderHome(); }
+
+    function filterSubjects() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { renderHome(document.getElementById('search-box').value.toLowerCase()); }, 300); }
+
+    function renderHome(searchQuery = '') {
+      const grid = document.getElementById('subjects-grid'); let filtered = db.filter(s => s.level === activeLevel); if (searchQuery) filtered = filtered.filter(s => (s.name || '').toLowerCase().includes(searchQuery));
+      if (filtered.length === 0) { grid.innerHTML = `<div class="empty-state z-content" style="grid-column:1/-1;">لا توجد مواد مطابقة.</div>`; return; }
+      const isAdmin = currentStudentData && currentStudentData.isAdmin === true;
+      grid.innerHTML = filtered.map(subj => `<div class="card liquid-glass"><div class="z-content" style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;"><h3 style="margin:0 0 8px; font-size:17px; cursor:pointer;" onclick="openSubject('${subj.id}')">📚 ${escText(subj.name)}</h3>${isAdmin ? `<button class="btn-sm btn-ban" onclick="event.stopPropagation(); deleteSubject('${subj.id}','${escapeHtml(subj.name)}')">🗑️ حذف</button>` : ''}</div><p class="z-content" style="font-size:13px; color:var(--fg-soft); margin:0 0 16px; line-height:1.5; cursor:pointer;" onclick="openSubject('${subj.id}')">${escText(subj.desc)}</p><button class="pill z-content" style="width:100%; height:38px;" onclick="openSubject('${subj.id}')">تصفح المادة</button></div>`).join('');
+    }
+
+    function renderFilesCategory(filesList, categoryName, icon, isAdmin, subjId) {
+      const filtered = filesList.filter(f => (f.category || 'محاضرات') === categoryName); if (filtered.length === 0) return '';
+      let html = `<div class="file-category-header z-content">${icon} ${escText(categoryName)}</div>`;
+      html += filtered.map(f => `<div class="card liquid-glass" style="flex-direction:row; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; padding: 12px 16px;"><h4 class="z-content" style="margin:0; font-size:14px; min-width:0; word-break:break-word;">${escText(f.title)}</h4><div class="z-content" style="display:flex; gap:8px; flex-shrink:0;"><a href="${escText(safeUrl(f.link))}" target="_blank" rel="noopener noreferrer" class="pill" style="height:32px; font-size:12px;">فتح الملف ↗</a>${isAdmin ? `<button class="btn-sm btn-ban" onclick="deleteFile('${subjId}','${f.key}','${escapeHtml(f.title)}')">🗑️</button>` : ''}</div></div>`).join('');
+      return html;
+    }
+
+    function resetSubjectQuizzes() {
+        if (!currentUser || !currentSubjectId) return;
+        Swal.fire({ title: 'هل تريد إعادة امتحان المادة؟', text: "سيتم مسح إجاباتك السابقة في هذه المادة فقط (ولن يتم خصم أي نقاط من لوحة الشرف)، وسيتم خلط الأسئلة لتبدأ من جديد للتدريب.", icon: 'question', showCancelButton: true, confirmButtonColor: '#3b82f6', cancelButtonColor: '#ef4444', confirmButtonText: 'نعم، ابدأ من جديد', cancelButtonText: 'إلغاء' }).then((result) => {
+            if (result.isConfirmed) {
+                const subj = db.find(s => s.id === currentSubjectId); if (!subj || !subj.quizzes) return;
+                const quizKeys = subj.quizzes.map(q => q.key);
+                database.ref('users/' + currentUser.uid + '/solvedQuizzes').once('value').then(snap => {
+                    let currentSolved = snap.val() || {}; let updates = {};
+                    quizKeys.forEach(k => { if (currentSolved[k]) updates[k] = null; });
+                    Promise.resolve(Object.keys(updates).length ? database.ref('users/' + currentUser.uid + '/solvedQuizzes').update(updates) : null).then(() => { delete quizOrder[currentSubjectId]; Swal.fire('تم!', 'تم تجهيز الامتحان من جديد وبترتيب مختلف.', 'success').then(() => { openSubject(currentSubjectId); }); });
+                });
+            }
+        });
+    }
+
+    function openSubject(id, silent) {
+      currentSubjectId = id; const subj = db.find(s => s.id === id); if (!subj) return showHome();
+      document.getElementById('view-home').style.display = 'none'; document.getElementById('view-research').style.display = 'none'; document.getElementById('view-subject').style.display = 'block'; document.getElementById('subject-title').innerText = "📚 " + subj.name; document.getElementById('subject-desc').innerText = subj.desc;
+      const isAdmin = currentStudentData && currentStudentData.isAdmin === true; const solvedQuizzes = (currentStudentData && currentStudentData.solvedQuizzes) ? currentStudentData.solvedQuizzes : {};
+
+      if (subj.images && subj.images.length > 0) {
+          document.getElementById('subject-images').innerHTML = subj.images.map(img => `
+              <div class="subject-image-container z-content">
+                 <img src="${escText(safeUrl(img.url))}" alt="صورة المادة" loading="lazy" onerror="this.parentElement.style.display='none'">
+                 <div class="subject-image-title">${escText(img.title)} ${isAdmin ? `<button class="btn-sm btn-ban" style="float:left;" onclick="deleteSubjectImage('${subj.id}','${img.key}','${escapeHtml(img.title)}')">حذف</button>` : ''}</div>
+              </div>`).join('');
+      } else { document.getElementById('subject-images').innerHTML = ''; }
+
+      if (subj.files.length === 0) document.getElementById('subject-files').innerHTML = '<div class="empty-state z-content">لا توجد ملفات.</div>';
+      else { let filesHtml = renderFilesCategory(subj.files, 'محاضرات', '📖', isAdmin, subj.id) + renderFilesCategory(subj.files, 'سكاشن', '🔬', isAdmin, subj.id) + renderFilesCategory(subj.files, 'امتحانات', '📝', isAdmin, subj.id); document.getElementById('subject-files').innerHTML = filesHtml || '<div class="empty-state z-content">لا توجد ملفات مصنفة.</div>'; }
+
+      if (!silent || !quizOrder[id]) quizOrder[id] = shuffleArray(subj.quizzes.map(q => q.key));
+      let shuffledQuizzes = quizOrder[id].map(k => subj.quizzes.find(q => q.key === k)).filter(Boolean).concat(subj.quizzes.filter(q => !quizOrder[id].includes(q.key)));
+
+      document.getElementById('subject-quizzes').innerHTML = shuffledQuizzes.length === 0 ? '<div class="empty-state z-content">بنك الأسئلة فارغ حالياً.</div>' : shuffledQuizzes.map((q, idx) => {
+        const sq = solvedQuizzes[q.key]; const isSolved = !!sq; const status = sq ? (sq.status || (sq === true ? 'correct' : null)) : null; const selectedOpt = sq ? sq.selected : null;
+        const getBtnStyle = (optNum) => { if (!isSolved) return ''; if (status === 'correct' && q.ans == optNum) return 'background: #15803d; border-color: #22c55e; opacity: 1;'; if (status === 'wrong' && q.ans == optNum) return 'background: #15803d; border-color: #22c55e; opacity: 1;'; if (status === 'wrong' && selectedOpt == optNum) return 'background: #b91c1c; border-color: #ef4444; opacity: 1;'; return 'opacity: .5; cursor: not-allowed;'; };
+        const badgeHtml = isSolved ? (status === 'correct' ? `<div class="z-content quiz-solved-badge" style="background:rgba(34,197,94,.2); color:#4ade80; border:1px solid #22c55e;">✔️ إجابة صحيحة</div>` : `<div class="z-content quiz-solved-badge" style="background:rgba(239,68,68,.2); color:#f87171; border:1px solid #ef4444;">❌ إجابة خاطئة</div>`) : '';
+        let options = [ { text: q.opt1, num: '1' }, { text: q.opt2, num: '2' }, { text: q.opt3, num: '3' }, { text: q.opt4, num: '4' } ];
+        if (!isSolved) options = shuffleArray(options);
+        const optionsHtml = options.map(opt => `<button class="quiz-btn" ${isSolved ? 'disabled' : ''} style="${getBtnStyle(opt.num)}" onclick="checkAnswer(this,'${opt.num}','${q.ans}','${q.key}')">${escText(opt.text)}</button>`).join('');
+        return `<div class="card liquid-glass" style="padding:20px; border: ${isSolved ? (status==='correct' ? '1px solid #15803d' : '1px solid #b91c1c') : 'none'};"><div class="z-content" style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;"><p style="font-weight:700; font-size:16px; margin:0 0 12px; display:flex; align-items:center; gap:6px;">س${idx+1}: ${escText(q.q)}</p>${isAdmin ? `<button class="btn-sm btn-ban" onclick="deleteQuiz('${subj.id}','${q.key}','${escapeHtml(q.q)}')">🗑️</button>` : ''}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">${badgeHtml}</div>
+        <div class="quiz-options z-content" style="margin-top:16px;">${optionsHtml}</div></div>`;
+      }).join('');
+      if (!silent) window.scrollTo({ top: document.getElementById('main-site').offsetTop, behavior: 'smooth' });
+    }
+
+    function checkAnswer(btn, selected, correct, quizKey) {
+      let buttons = btn.parentElement.querySelectorAll('button'); buttons.forEach(b => { b.disabled = true; b.style.cursor = "not-allowed"; });
+      const isAlreadySolved = currentStudentData && currentStudentData.solvedQuizzes && currentStudentData.solvedQuizzes[quizKey];
+      const isCorrect = (selected === correct); const solveData = { status: isCorrect ? 'correct' : 'wrong', selected: selected, timestamp: Date.now() };
+      if (isCorrect) {
+        btn.style.background = "#15803d"; btn.style.borderColor = "#22c55e"; btn.style.opacity = "1"; btn.innerHTML += " ✔️";
+        buttons.forEach(b => { if (b !== btn) b.style.opacity = ".5"; });
+        if (currentUser && !isAlreadySolved) {
+            const uu = 'users/'+currentUser.uid, already = !!(currentStudentData && currentStudentData.scoredQuizzes && currentStudentData.scoredQuizzes[quizKey]); const up = {}; up[uu+'/solvedQuizzes/'+quizKey] = solveData; if (!already) { up[uu+'/scoredQuizzes/'+quizKey] = true; up[uu+'/score'] = FB.database.ServerValue.increment(1); up['leaderboard/'+currentUser.uid+'/score'] = FB.database.ServerValue.increment(1); } database.ref().update(up);
+            Swal.fire({title: 'إجابة صحيحة!', text: (already ? 'صحيح! (نقطة هذا السؤال احتُسبت لك سابقاً)' : 'تمت إضافة نقطة لرصيدك 🏆'), icon: 'success', timer: 1500, showConfirmButton: false});
+        }
+      } else {
+        btn.style.background = "#b91c1c"; btn.style.borderColor = "#ef4444"; btn.style.opacity = "1"; btn.innerHTML += " ❌";
+        buttons.forEach(b => {
+            if (b.getAttribute('onclick').includes(`,'${correct}',`)) { b.style.background = "#15803d"; b.style.borderColor = "#22c55e"; b.style.opacity = "1"; }
+            else if (b !== btn) { b.style.opacity = ".5"; }
+        });
+        if (currentUser && !isAlreadySolved) database.ref('users/'+currentUser.uid+'/solvedQuizzes/'+quizKey).set(solveData);
+      }
+    }
+
+    /* ===== صفحة إعادة تعيين الباسورد داخل الموقع (بدل صفحة Firebase الافتراضية) ===== */
+    function __resetErrMsg(e) {
+      const c = (e && e.code) || '';
+      if (c === 'auth/expired-action-code') return 'الرابط انتهت صلاحيته (ساعة واحدة). اطلب رابط جديد واستخدمه فورًا.';
+      if (c === 'auth/invalid-action-code') return 'الرابط اتستخدم قبل كده أو مش صالح. اطلب رابط جديد وافتح آخر إيميل بس. (' + c + ')';
+      if (c === 'auth/weak-password') return 'كلمة المرور ضعيفة، اكتب 6 أحرف على الأقل.';
+      if (c === 'auth/user-disabled') return 'الحساب ده متوقف. كلّم الإدارة.';
+      return 'حصل خطأ: ' + (c || (e && e.message) || 'غير معروف');
+    }
+    function handleAuthActionLink() {
+      let p; try { p = new URLSearchParams(location.search); } catch (e) { return; }
+      const mode = p.get('mode'), code = p.get('oobCode');
+      if (mode !== 'resetPassword' || !code) return;
+      try { history.replaceState(null, '', location.pathname.replace(/\/usermgmt\/?$/, '/')); } catch (e) {}
+      Swal.fire({
+        title: 'تعيين كلمة مرور جديدة 🔑', text: 'اكتب كلمة المرور الجديدة واضغط حفظ.',
+        input: 'password', inputPlaceholder: 'كلمة المرور الجديدة (6 أحرف على الأقل)', inputAttributes: { autocomplete: 'new-password' },
+        confirmButtonText: 'حفظ', allowOutsideClick: false, allowEscapeKey: false, showLoaderOnConfirm: true,
+        preConfirm: async (pw) => {
+          if (!pw || pw.length < 6) { Swal.showValidationMessage('اكتب 6 أحرف على الأقل'); return false; }
+          try { await auth.confirmPasswordReset(code, pw); return true; }
+          catch (e) { Swal.showValidationMessage(__resetErrMsg(e)); return false; }
+        }
+      }).then(r => { if (r.isConfirmed) Swal.fire('تم ✅', 'اتغيرت كلمة المرور. سجّل دخول بيها دلوقتي.', 'success'); });
+    }
+
+    window.onload = () => {
+      try { handleAuthActionLink(); } catch (e) {}
+      document.getElementById('name-group').style.display = 'none';
+      document.getElementById('phone-group').style.display = 'none';
+      document.getElementById('level-group').style.display = 'none';
+      initTheme();
+      showHome(true);
+      document.querySelectorAll('a[href="#"][target="_blank"]').forEach(a => a.style.display = 'none');
+    };
+  </script>
 </body>
 </html>
