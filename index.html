@@ -305,7 +305,7 @@
     <div class="hero-content">
       <div class="hero-label">قسم المساحة ونظم المعلومات</div>
       <h1 class="hero-title">منصة الدفعة<br>التعليمية</h1>
-      <p class="hero-desc">منصتكم الموحدة للملخصات، بنك الأسئلة، ولوحة شرف المتفوقين لكل المستويات.</p>
+      <p class="hero-desc">منصتكم الموحدة للملخصات، بنك الأسئلة، وأوائل الدفعة المتفوقين لكل المستويات.</p>
       <div class="scroll-down-btn" onclick="document.getElementById('main-site').scrollIntoView({behavior: 'smooth'})">
         <span>استكشف المنصة</span>
         <div class="arrow-down">↓</div>
@@ -390,7 +390,7 @@
             </div>
           </div>
           <div>
-            <h2 class="section-title z-content" style="color: var(--gold);">🏆 لوحة الشرف</h2>
+            <h2 class="section-title z-content" style="color: var(--gold);">🏆 أوائل الدفعة</h2>
             <div class="card liquid-glass leaderboard-card" id="leaderboard-container">
               <div class="empty-state">جاري تحميل البيانات...</div>
             </div>
@@ -1249,7 +1249,7 @@
     function renderLeaderboard(board) {
       const container = document.getElementById('leaderboard-container'); container.innerHTML = ''; let top = board.slice(0, 5);
       if (top.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد نتائج حتى الآن.</div>'; return; }
-      container.innerHTML = top.map((s, idx) => { const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`; return `<div class="rank-row z-content"><div class="rank-num">${medal}</div><div class="rank-name">${escText(s.name)}</div><div class="rank-score">${s.score || 0} ن</div></div>`; }).join('');
+      container.innerHTML = top.map((s, idx) => { const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`; return `<div class="rank-row z-content"><div class="rank-num">${medal}</div><div class="rank-name">${escText(s.name)}</div><div class="rank-score">${s.score || 0}</div></div>`; }).join('');
     }
 
     function renderStudentsTable() {
